@@ -406,6 +406,14 @@ dialog::backdrop{background:rgba(3,6,18,.72);backdrop-filter:blur(6px)}
 .pcard .thumb.has-media .who{max-width:calc(100% - 32px)}
 .pcard .buy{margin-top:auto;width:100%}
 .pcard .fine{font-size:12.5px;color:var(--muted)}
+.ssearch{padding:22px;border:1px solid var(--line);border-radius:var(--r-lg);background:linear-gradient(165deg,rgba(17,25,51,.7),rgba(8,12,26,.7));margin-bottom:34px}
+.ssh{font-size:clamp(22px,2.4vw,30px);margin-bottom:14px;max-width:none}
+.sbox{max-width:620px}
+.sgrp{margin-top:14px}.sreg{display:block;font-size:13px;color:var(--muted);margin-bottom:8px}
+.sbtns{display:flex;flex-wrap:wrap;gap:8px}
+.sbtn{display:flex;flex-direction:column;gap:1px;padding:10px 14px;border-radius:10px;border:1px solid var(--line);background:rgba(6,10,26,.55);font-weight:600;font-size:15px;transition:border-color .2s,background .2s;min-width:118px}
+.sbtn small{font-weight:400;font-size:12px;color:var(--muted)}
+.sbtn:hover{border-color:rgba(160,180,255,.4);background:rgba(47,107,255,.08)}
 .you{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:14px 16px;border:1px solid var(--line);border-radius:var(--r-md);background:rgba(14,20,42,.6);margin-bottom:18px;font-size:15px;color:#C3CAE0}
 .you svg{flex:none}.you span{flex:1;min-width:200px}.you b{color:var(--white);font-weight:600}
 .you select{height:36px;padding:0 10px;border-radius:8px;background:rgba(6,10,26,.7);border:1px solid var(--line);font-size:14px;max-width:100%}
@@ -772,6 +780,8 @@ table.t{width:100%;border-collapse:collapse;font-size:14.5px;min-width:640px}
     <div class="market-top"><h1>Marketplace</h1></div>
     <nav class="mtabs" aria-label="Marketplace sections"><a href="#marketplace" aria-current="false">Houlio sellers, with escrow</a><a href="#partners" aria-current="true">Partner stores</a></nav>
     <div class="you" id="pYou"></div>
+    <section class="ssearch" id="pSearch" aria-label="Search other stores"></section>
+    <h2 class="ssh" style="margin-top:8px">Picks from partner stores</h2>
     <div class="pchips" id="pRegions" aria-label="Regions"></div>
     <div class="pchips" id="pChips" aria-label="Stores"></div>
     <div class="result-bar"><span class="count" id="pCount"></span><span class="notice">Sample partner products for design review</span></div>
@@ -917,12 +927,14 @@ q.addEventListener('input',()=>{
   const term=q.value; if(!term.trim()){sr.classList.remove('show');return;}
   const m=matches(term).slice(0,5);
   sr.innerHTML=m.length?m.map(p=>`<button class="sr-item" data-id="${p.id}" role="option"><span class="mini-thumb">${p.b[0]}</span><span class="t">${p.t}</span><span class="p">${fmt(p.price)}</span></button>`).join('')+`<button class="sr-item" data-all="1"><span class="t" style="color:var(--cyan)">See all results for “${term.replace(/</g,'&lt;')}”</span></button>`
-    :`<div class="sr-empty">Nothing matches “${term.replace(/</g,'&lt;')}” yet. Try a brand or a category.</div>`;
+    :`<div class="sr-empty">Nothing matches “${term.replace(/</g,'&lt;')}” on Houlio Duo yet.</div>`;
+  sr.innerHTML+=`<button class="sr-item" data-other="1"><span class="t">Search Jumia, Amazon, eBay and more for “${term.replace(/</g,'&lt;')}”</span></button>`;
   sr.classList.add('show');
 });
 sr.addEventListener('click',e=>{
   const b=e.target.closest('.sr-item'); if(!b) return;
-  if(b.dataset.all){goMarket({q:q.value});} else openListing(+b.dataset.id);
+  if(b.dataset.other){PSQ=q.value.trim();const ss=document.getElementById('pSearch');if(ss)ss.dataset.cc='';location.hash='partners';}
+  else if(b.dataset.all){goMarket({q:q.value});} else openListing(+b.dataset.id);
   sr.classList.remove('show');
 });
 document.getElementById('qGo').addEventListener('click',e=>{e.preventDefault();goMarket({q:q.value});});
@@ -1434,6 +1446,38 @@ function setCountry(c,source){USER.country=c;USER.region=regionOf(c);USER.source
     fetch('/api/geo',{cache:'no-store',signal:ctl.signal}).then(r=>r.ok?r.json():null).then(j=>{if(j&&/^[A-Z]{2}$/.test(j.country)){setCountry(j.country,'network');onLocation();}}).catch(()=>{});}catch{}
 })();
 let prAuto=true;
+const enc=encodeURIComponent;
+const pick=(map,def)=>map[USER.country]||def;
+const SEARCH={
+  jumia:{label:'Jumia',url:q=>{const d=pick({NG:'jumia.com.ng',KE:'jumia.co.ke',GH:'jumia.com.gh',EG:'jumia.com.eg',MA:'jumia.ma',CI:'jumia.ci',SN:'jumia.sn',UG:'jumia.ug',TN:'jumia.com.tn',DZ:'jumia.dz'},'jumia.com.ng');return q?`https://www.${d}/catalog/?q=${enc(q)}`:`https://www.${d}/`;}},
+  konga:{label:'Konga',url:q=>q?`https://www.konga.com/search?search=${enc(q)}`:'https://www.konga.com/'},
+  'amazon-eu':{label:'Amazon',url:q=>{const d=pick({GB:'amazon.co.uk',IE:'amazon.co.uk',DE:'amazon.de',AT:'amazon.de',CH:'amazon.de',FR:'amazon.fr',BE:'amazon.fr',IT:'amazon.it',ES:'amazon.es',NL:'amazon.nl',PL:'amazon.pl',SE:'amazon.se'},'amazon.co.uk');return q?`https://www.${d}/s?k=${enc(q)}`:`https://www.${d}/`;}},
+  'ebay-eu':{label:'eBay',url:q=>{const d=pick({GB:'ebay.co.uk',IE:'ebay.ie',DE:'ebay.de',AT:'ebay.at',FR:'ebay.fr',IT:'ebay.it',ES:'ebay.es',NL:'ebay.nl'},'ebay.co.uk');return q?`https://www.${d}/sch/i.html?_nkw=${enc(q)}`:`https://www.${d}/`;}},
+  zalando:{label:'Zalando',url:q=>q?`https://www.zalando.co.uk/catalog/?q=${enc(q)}`:'https://www.zalando.co.uk/'},
+  bol:{label:'bol.com',url:q=>q?`https://www.bol.com/nl/nl/s/?searchtext=${enc(q)}`:'https://www.bol.com/'},
+  backmarket:{label:'Back Market',url:q=>q?`https://www.backmarket.co.uk/en-gb/search?q=${enc(q)}`:'https://www.backmarket.co.uk/'},
+  allegro:{label:'Allegro',url:q=>q?`https://allegro.pl/listing?string=${enc(q)}`:'https://allegro.pl/'},
+  'amazon-us':{label:'Amazon',url:q=>{const d=pick({CA:'amazon.ca',MX:'amazon.com.mx'},'amazon.com');return q?`https://www.${d}/s?k=${enc(q)}`:`https://www.${d}/`;}},
+  'ebay-us':{label:'eBay',url:q=>{const d=pick({CA:'ebay.ca'},'ebay.com');return q?`https://www.${d}/sch/i.html?_nkw=${enc(q)}`:`https://www.${d}/`;}},
+  'amazon-me':{label:'Amazon',url:q=>{const d=pick({SA:'amazon.sa',EG:'amazon.eg'},'amazon.ae');return q?`https://www.${d}/s?k=${enc(q)}`:`https://www.${d}/`;}},
+  'amazon-apac':{label:'Amazon',url:q=>{const d=pick({JP:'amazon.co.jp',AU:'amazon.com.au',SG:'amazon.sg',NZ:'amazon.com.au'},'amazon.in');return q?`https://www.${d}/s?k=${enc(q)}`:`https://www.${d}/`;}},
+  'ebay-au':{label:'eBay',url:q=>q?`https://www.ebay.com.au/sch/i.html?_nkw=${enc(q)}`:'https://www.ebay.com.au/'},
+  aliexpress:{label:'AliExpress',url:q=>q?`https://www.aliexpress.com/wholesale?SearchText=${enc(q)}`:'https://www.aliexpress.com/'},
+  temu:{label:'Temu',url:q=>q?`https://www.temu.com/search_result.html?search_key=${enc(q)}`:'https://www.temu.com/'}
+};
+// When you later join a program, its saved affiliate ID is added to these links automatically (Amazon "tag" for now).
+function withAff(id,url){const pt=pOf(id); if(pt&&pt.tag&&/^amazon/.test(id))return url+(url.includes('?')?'&':'?')+'tag='+enc(pt.tag); return url;}
+let PSQ='';
+function storeSearchHTML(){
+  const order=[USER.region,...REGIONS.map(r=>r[0]).filter(r=>r!==USER.region&&r!=='global'),'global'].filter(Boolean);
+  const groups=[...new Set(order)].map(r=>{const ids=PARTNERS.filter(p=>p.region===r&&SEARCH[p.id]).map(p=>p.id);return ids.length?`<div class="sgrp"><span class="sreg">${esc(regName(r))}${r===USER.region?' (you)':''}</span><div class="sbtns">${ids.map(id=>`<a class="sbtn" data-sid="${id}" target="_blank" rel="noopener noreferrer" href="${esc(withAff(id,SEARCH[id].url(PSQ)))}">${esc(SEARCH[id].label)}<small>${esc(new URL(SEARCH[id].url('')).hostname.replace(/^www\./,''))}</small></a>`).join('')}</div></div>`:'';}).join('');
+  return `<h2 class="ssh">Search other stores</h2>
+    <div class="search-box sbox"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="#8A94B5" stroke-width="1.7" aria-hidden="true"><circle cx="9" cy="9" r="6.5"/><path d="M14 14l4 4"/></svg><input id="psq" type="search" placeholder="What are you looking for? e.g. iPhone 13" value="${esc(PSQ)}" aria-label="Search other stores" autocomplete="off"></div>
+    <p class="formnote" style="margin:10px 0 18px">Type, then tap a store. Its results open on the store’s own site with photos, prices and delivery to your country.</p>
+    ${groups}`;
+}
+function refreshStoreLinks(){document.querySelectorAll('.sbtn[data-sid]').forEach(a=>a.href=withAff(a.dataset.sid,SEARCH[a.dataset.sid].url(PSQ)));}
+
 function onLocation(){ if(prAuto)PR=''; renderPStrip(); if(!document.getElementById('view-partners').hidden)renderPartners(); }
 function youHTML(){
   const pin='<svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="#9FB4FF" stroke-width="1.7"><path d="M10 18s6-5.2 6-10a6 6 0 1 0-12 0c0 4.8 6 10 6 10z"/><circle cx="10" cy="8" r="2.2"/></svg>';
@@ -1457,7 +1501,8 @@ const pVisible=()=>PITEMS.filter(i=>i.on&&(i.img||i.sample)).sort((a,b)=>(b.regi
 function renderPartners(){
   const items=pVisible();
   if(prAuto&&PR===''&&USER.region&&items.some(i=>i.region===USER.region))PR=USER.region;
-  const yo=document.getElementById('pYou'); yo.innerHTML=youHTML(); document.getElementById('youSel').onchange=e=>{const c=e.target.value;if(!c)return;setCountry(c,'saved');try{localStorage.setItem('hd-country',c);}catch{}prAuto=true;PR='';PF='';renderPStrip();renderPartners();toast(`Location set to ${cName(c)}`);};
+  const ss=document.getElementById('pSearch'); if(!ss.dataset.cc||ss.dataset.cc!==USER.country+'|'+USER.region){ss.innerHTML=storeSearchHTML();ss.dataset.cc=USER.country+'|'+USER.region;const iq=document.getElementById('psq');iq.oninput=()=>{PSQ=iq.value.trim();refreshStoreLinks();};}
+  const yo=document.getElementById('pYou'); yo.innerHTML=youHTML(); document.getElementById('youSel').onchange=e=>{const c=e.target.value;if(!c)return;setCountry(c,'saved');try{localStorage.setItem('hd-country',c);}catch{}prAuto=true;document.getElementById('pSearch').dataset.cc='';PR='';PF='';renderPStrip();renderPartners();toast(`Location set to ${cName(c)}`);};
   const counts=Object.fromEntries(REGIONS.map(([r])=>[r,items.filter(i=>i.region===r).length]));
   document.getElementById('pRegions').innerHTML=`<button class="chip" aria-pressed="${PR===''}" data-pr="">All regions</button>`+REGIONS.filter(([r])=>counts[r]).map(([r,n])=>`<button class="chip" aria-pressed="${PR===r}" data-pr="${r}">${n}${r===USER.region?' (you)':''} <span class="cnt">${counts[r]}</span></button>`).join('');
   const inReg=items.filter(i=>!PR||i.region===PR);
