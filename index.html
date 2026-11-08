@@ -561,12 +561,9 @@ table.t{width:100%;border-collapse:collapse;font-size:14.5px;min-width:640px}
       <div class="sec-head">
         <div>
           <h2>Featured right now</h2>
-          <p class="sub" style="margin-top:14px">Every listing shows its condition, accepted payments and whether escrow covers it before you open it.</p>
+          <p class="sub" id="featSub" style="margin-top:14px">Live products from stores around the world. Tap one to buy it on the store’s site.</p>
         </div>
-        <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap">
-          <span class="notice">Sample listings for design review</span>
-          <a class="link" href="#marketplace">See all listings</a>
-        </div>
+        <a class="link" href="#partners">See all</a>
       </div>
       <div class="strip" id="featuredStrip"></div>
     </div>
@@ -691,13 +688,6 @@ table.t{width:100%;border-collapse:collapse;font-size:14.5px;min-width:640px}
         <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="#FFC266" stroke-width="1.7"><path d="M11 2l9 16H2z"/><path d="M11 9v4M11 15.5v.5"/></svg>
         <div>Checkout blocks payment until your wallet is on the network the invoice was made for. We will never ask for your seed phrase or private key, and nobody from Houlio Duo will ask you to pay outside checkout.</div>
       </div>
-    </div>
-  </section>
-
-  <section class="block solid" id="partner-picks">
-    <div class="wrap">
-      <div class="sec-head"><div><h2>Also from partner stores</h2><p class="sub" style="margin-top:14px">Picks from marketplaces we work with. You buy on their site; Houlio Duo escrow doesn’t apply.</p></div><a class="link" href="#partners">See partner stores</a></div>
-      <div class="strip" id="pStrip"></div>
     </div>
   </section>
 
@@ -900,7 +890,7 @@ function cardHTML(p){
 }
 
 /* ============ home render ============ */
-function renderFeatured(){document.getElementById('featuredStrip').innerHTML=[5,1,9,7,3,13,6].map(i=>L.find(x=>x.id===i)).filter(visible).map(cardHTML).join('');}
+function renderFeatured(){try{pVisible;}catch{return;}const own=L.filter(p=>p.mine&&visible(p)&&p.media&&p.media.length);document.getElementById('featuredStrip').innerHTML=own.map(cardHTML).join('')+pVisible().slice(0,12).map(pcardHTML).join('');}
 renderFeatured();
 function renderCats(){document.getElementById('catList').innerHTML=CATS.map(c=>`<button class="cat" data-cat="${c.id}"><span><span class="name">${c.name}</span><div class="subs">${c.subs}</div></span><span class="go">${L.filter(p=>p.cat===c.id).length} listings</span></button>`).join('');}
 renderCats();
@@ -1001,7 +991,7 @@ document.addEventListener('click',e=>{
 });
 
 /* ============ routing ============ */
-const homeSections=['top','partner-picks','featured','categories','stores','how','escrow','assets','collections','reviews','sell'];
+const homeSections=['top','featured','categories','stores','how','escrow','assets','collections','reviews','sell'];
 function route(){
   const h=location.hash.slice(1);
   const market=h==='marketplace', con=h==='hd-console', part=h==='partners';
@@ -1539,9 +1529,8 @@ function renderPartners(){
 }
 function renderPStrip(){
   enrich(PITEMS.filter(i=>i.on));
-  const items=pVisible().slice(0,8), sec=document.getElementById('partner-picks');
-  const sub=sec.querySelector('.sub'); if(sub)sub.textContent=USER.country?`Picks from marketplaces we work with, starting with stores for ${cName(USER.country)}. You buy on their site.`:'Picks from marketplaces we work with. You buy on their site.';
-  sec.hidden=!items.length; document.getElementById('pStrip').innerHTML=items.map(pcardHTML).join('');
+  const sub=document.getElementById('featSub'); if(sub)sub.textContent=USER.country?`Live products from stores around the world, starting with ${cName(USER.country)}. Tap one to buy it on the store’s site.`:'Live products from stores around the world. Tap one to buy it on the store’s site.';
+  renderFeatured();
 }
 renderPStrip();
 function openGuide(id){
