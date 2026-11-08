@@ -51,7 +51,7 @@ module.exports = async (req, res) => {
     const ld = fromJsonLd(html);
     const title = meta(html, ['og:title', 'twitter:title']) || ld.title || decode((html.match(/<title>([^<]+)<\/title>/i) || [])[1]);
     let image = meta(html, ['og:image', 'og:image:secure_url', 'twitter:image', 'image']) || ld.image || '';
-    if (image && image.startsWith('//')) image = 'https:' + image;
+    if (image) { try { image = new URL(image, finalUrl.href).href.replace(/^http:/, 'https:'); } catch (e) { image = ''; } }
     const price = meta(html, ['product:price:amount', 'og:price:amount', 'price']) || (ld.price != null ? String(ld.price) : '');
     const currency = meta(html, ['product:price:currency', 'og:price:currency', 'priceCurrency']) || ld.currency || '';
     const ok = !moved && !!image && !!title;
