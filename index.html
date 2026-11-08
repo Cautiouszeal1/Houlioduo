@@ -807,7 +807,7 @@ table.t{width:100%;border-collapse:collapse;font-size:14.5px;min-width:640px}
     </div>
     <div class="legal">
       <p>Poker products and stored-value cards are listed only where their resale and transfer are lawful. Stolen, counterfeit or non-transferable cards, gambling accounts and gambling credits are prohibited. Age and regional restrictions apply. Payments and escrow open in each region only after legal review.</p>
-      <p>© 2026 Houlio Duo</p>
+      <p>© 2026 Houlio Duo. <a href="https://www.exchangerate-api.com" target="_blank" rel="noopener">Rates By Exchange Rate API</a></p>
     </div>
   </div>
 </footer>
@@ -1481,6 +1481,17 @@ async function enrich(items){
   try{sessionStorage.setItem('hd-live',JSON.stringify(cache));}catch{}
   renderPStrip(); if(!document.getElementById('view-partners').hidden)renderPartners(); if(!document.getElementById('view-console').hidden&&conTab==='partners')renderConsole();
 }
+// African prices are shown in US dollars. Backup rates are replaced by the daily feed at /api/rates on the live site.
+const RATES={NGN:1420,KES:129,GHS:11,EGP:48,ZAR:17.5,MAD:9.2,XOF:560,UGX:3600,TND:2.9,DZD:132};
+const AF_CUR={'jumia.com.ng':'NGN','jumia.co.ke':'KES','jumia.com.gh':'GHS','jumia.com.eg':'EGP','jumia.ma':'MAD','jumia.ci':'XOF','jumia.sn':'XOF','jumia.ug':'UGX','jumia.com.tn':'TND','jumia.dz':'DZD','konga.com':'NGN'};
+fetch('/api/rates').then(r=>r.ok?r.json():null).then(j=>{if(j&&j.ok&&j.rates){for(const c in RATES)if(j.rates[c])RATES[c]=j.rates[c];renderPStrip();if(!document.getElementById('view-partners').hidden)renderPartners();}}).catch(()=>{});
+function priceLabel(it,lv){
+  if(!lv||lv.price==null||lv.price==='')return '';
+  const n=parseFloat(String(lv.price).replace(/[^0-9.]/g,'')); if(!(n>0))return '';
+  let cur=(lv.currency||'').toUpperCase(); if(!cur){try{cur=AF_CUR[new URL(it.url).hostname.replace(/^www\./,'')]||'USD';}catch{cur='USD';}}
+  if(it.region==='africa'&&cur!=='USD'&&RATES[cur]){const usd=n/RATES[cur];return {text:'≈ '+new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:usd>=100?0:2}).format(usd),orig:pmoney(n,cur)};}
+  return {text:pmoney(n,cur),orig:''};
+}
 const liveOf=i=>{const l=LIVE[i.url];return l&&typeof l==='object'?l:null;};
 const imgOf=i=>(liveOf(i)&&liveOf(i).image)||i.img||'';
 
@@ -1557,12 +1568,12 @@ function youHTML(){
 let PR='', PF='';
 function pcardHTML(it){
   const pt=pOf(it.partner), lv=liveOf(it), img=imgOf(it), title=(lv&&lv.title)||it.t;
-  const pr=lv&&lv.price&&!isNaN(parseFloat(lv.price))?pmoney(parseFloat(String(lv.price).replace(/,/g,'')),(lv.currency||'USD').toUpperCase()):'';
+  const pl=priceLabel(it,lv), pr=pl?pl.text:'';
   const store=pt.name.replace(/ (Europe|US & Canada|Middle East|Asia-Pacific|US|Australia|Lounge)$/,'');
   const href=withAff(it.partner,it.url);
   return `<article class="card pcard">
     <a class="thumb has-media" href="${esc(href)}" target="_blank" rel="sponsored noopener noreferrer" data-pclick="${it.id}"><img class="cover" src="${esc(img)}" alt="${esc(title)}" loading="lazy" referrerpolicy="no-referrer" onerror="this.closest('.pcard').hidden=true"><span class="who">${esc(store)}</span></a>
-    <div class="meta"><span class="title">${esc(title.length>90?title.slice(0,88)+'…':title)}</span>${pr?`<span class="price">${pr}</span>`:''}</div>
+    <div class="meta"><span class="title">${esc(title.length>90?title.slice(0,88)+'…':title)}</span>${pr?`<span class="price"${pl.orig?` title="${esc(pl.orig)} on the store"`:''}>${pr}</span>`:''}</div>
     <span class="rgn">${esc(regName(it.region))}${pr?'':`, price on ${esc(store)}`}</span>
     <a class="btn btn-primary btn-sm buy" href="${esc(href)}" target="_blank" rel="sponsored noopener noreferrer" data-pclick="${it.id}">Buy on ${esc(store)}</a>
   </article>`;
