@@ -363,6 +363,7 @@ dialog::backdrop{background:rgba(3,6,18,.72);backdrop-filter:blur(6px)}
 .thumb.has-media .cond{background:rgba(5,7,15,.6);backdrop-filter:blur(6px)}
 .thumb.has-media .esc{background:rgba(5,7,15,.6);padding:3px 8px;border-radius:6px;backdrop-filter:blur(6px)}
 .thumb .cond,.thumb .esc{z-index:2}
+.pcard .thumb.has-media .tb,.pcard .thumb.has-media .tm,.pcard .thumb.has-media .ts{display:none}
 .thumb .vbad{position:absolute;left:16px;bottom:16px;z-index:2;display:flex;align-items:center;gap:6px;font-size:12px;background:rgba(5,7,15,.7);padding:4px 8px;border-radius:6px;backdrop-filter:blur(6px)}
 .thumb.has-media::after{background:linear-gradient(to top,rgba(5,7,15,.55),transparent 35%)!important}
 @media (max-width:560px){.thumb{padding:14px}.thumb .cond{left:12px;top:12px}.thumb .esc{right:12px;top:12px}.thumb .esc .lbl{display:none}.thumb.has-media .esc{padding:4px 6px}.thumb .tm{font-size:18px}}.thumb .tb,.thumb .tm,.thumb .ts{z-index:2}
@@ -401,8 +402,14 @@ dialog::backdrop{background:rgba(3,6,18,.72);backdrop-filter:blur(6px)}
 .pcard{display:flex;flex-direction:column;gap:12px}
 .pcard .thumb .who{position:absolute;left:16px;top:16px;z-index:2;font-size:12px;font-weight:500;padding:4px 8px;border-radius:6px;background:rgba(237,240,247,.09);color:#DDE2EE}
 .pcard .thumb .ptag{position:absolute;right:16px;top:16px;z-index:2;font-size:12px;color:var(--warn)}
+.pcard .thumb .who{max-width:calc(100% - 80px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pcard .thumb.has-media .who{max-width:calc(100% - 32px)}
 .pcard .buy{margin-top:auto;width:100%}
 .pcard .fine{font-size:12.5px;color:var(--muted)}
+.you{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:14px 16px;border:1px solid var(--line);border-radius:var(--r-md);background:rgba(14,20,42,.6);margin-bottom:18px;font-size:15px;color:#C3CAE0}
+.you svg{flex:none}.you span{flex:1;min-width:200px}.you b{color:var(--white);font-weight:600}
+.you select{height:36px;padding:0 10px;border-radius:8px;background:rgba(6,10,26,.7);border:1px solid var(--line);font-size:14px;max-width:100%}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 .pcard .rgn{font-size:13px;color:#B4C3FF;margin-top:-4px}
 .chip .cnt{opacity:.6;margin-left:4px;font-size:12px}
 .rhead{grid-column:1/-1;font-size:20px;margin-top:10px;padding-top:18px;border-top:1px solid var(--line)}
@@ -764,6 +771,7 @@ table.t{width:100%;border-collapse:collapse;font-size:14.5px;min-width:640px}
   <div class="wrap">
     <div class="market-top"><h1>Marketplace</h1></div>
     <nav class="mtabs" aria-label="Marketplace sections"><a href="#marketplace" aria-current="false">Houlio sellers, with escrow</a><a href="#partners" aria-current="true">Partner stores</a></nav>
+    <div class="you" id="pYou"></div>
     <div class="pchips" id="pRegions" aria-label="Regions"></div>
     <div class="pchips" id="pChips" aria-label="Stores"></div>
     <div class="result-bar"><span class="count" id="pCount"></span><span class="notice">Sample partner products for design review</span></div>
@@ -1181,7 +1189,7 @@ function submitApp(){
 }
 
 /* ============ list an item: photos, videos, details ============ */
-const LIM={photos:10,videos:2,photoMB:15,videoMB:200,videoSec:60,maxPx:1600};
+const LIM={photos:10,minPhotos:3,videos:2,photoMB:15,videoMB:200,videoSec:60,maxPx:1600};
 SELLERS.you={name:'Your store',lvl:'individual',country:'Nigeria'};
 let LW;
 function openListWizard(){
@@ -1248,14 +1256,14 @@ function drawLW(){
   let h='';
   if(key==='media'){
     const ni=LW.media.filter(m=>m.type==='image').length, nv=LW.media.length-ni; let firstImg=LW.media.findIndex(m=>m.type==='image');
-    h=`<h2>Add photos and videos</h2><p class="sub">Show the real item from every side, plus any marks or damage. The first photo is your cover.</p>
+    h=`<h2>Add photos and videos</h2><p class="sub">At least ${LIM.minPhotos} real photos of the item you’re selling: the front, the back and a close-up of any marks. The first photo is your cover.</p>
       <label class="drop" id="drop"><input type="file" id="mf" multiple accept="image/*,video/mp4,video/quicktime,video/webm,.heic,.heif,.mov">
         <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#9FB4FF" stroke-width="1.6"><path d="M12 16V4M7 9l5-5 5 5M4 20h16"/></svg>
         <b>Add photos or videos</b><span>Tap to choose, or drag files here. JPG, PNG, WebP, HEIC, MP4, MOV or WebM.</span></label>
       ${LW.media.length||LW.busy?`<div class="media-grid">${LW.media.map((m,i)=>`<div class="mi">${m.type==='video'?`<video src="${m.url}#t=0.1" muted playsinline preload="metadata"></video><span class="dur">${mmss(m.dur)}</span>`:`<img src="${m.url}" alt="${esc(m.name)}">`}
         ${i===firstImg?'<span class="tag">Cover</span>':m.type==='image'?`<button type="button" class="mk" data-cover="${i}">Make cover</button>`:'<span class="tag">Video</span>'}
         <button type="button" class="rm" data-rm="${i}" aria-label="Remove ${esc(m.name)}"><svg width="12" height="12" viewBox="0 0 16 16" stroke="#fff" stroke-width="2"><path d="M3 3l10 10M13 3L3 13"/></svg></button></div>`).join('')}${LW.busy?'<div class="mi busy">Processing…</div>':''}</div>`:''}
-      <div class="mcount"><span>${ni} of ${LIM.photos} photos, ${nv} of ${LIM.videos} videos</span><span>Videos up to ${LIM.videoSec} seconds</span></div>
+      <div class="mcount"><span>${ni} of ${LIM.photos} photos${ni<LIM.minPhotos?` (${LIM.minPhotos-ni} more needed)`:''}, ${nv} of ${LIM.videos} videos</span><span>Videos up to ${LIM.videoSec} seconds</span></div>
       <div class="errs">${[...LW.errs,LW.err.media].filter(Boolean).map(e=>`<span>${esc(e)}</span>`).join('')}</div>`;
   } else if(key==='details'){
     h=`<h2>Describe your item</h2><p class="sub">Be specific. Accurate listings sell faster and avoid disputes.</p>
@@ -1317,7 +1325,7 @@ function drawLW(){
 }
 function lwValidate(key){
   const d=LW.d,e={};
-  if(key==='media'&&!LW.media.some(m=>m.type==='image'))e.media='Add at least one photo. Videos are optional.';
+  if(key==='media'){const n=LW.media.filter(m=>m.type==='image').length;if(n<LIM.minPhotos)e.media=`Add at least ${LIM.minPhotos} photos (you have ${n}): the front, the back and a close-up of any marks. Videos are optional.`;}
   if(key==='details'){
     const t=(d.title||'').trim();
     if(t.length<8)e.title='Use at least 8 characters, e.g. brand, model and size.';
@@ -1398,31 +1406,65 @@ const PITEMS=[
 ].map(i=>({...i,clicks:0,on:true,sample:true}));
 const pOf=id=>PARTNERS.find(p=>p.id===id);
 const pmoney=(n,c)=>{try{return new Intl.NumberFormat('en',{style:'currency',currency:c,maximumFractionDigits:['NGN','JPY'].includes(c)?0:2}).format(n);}catch{return c+' '+n;}};
-const myRegion=(()=>{try{const z=Intl.DateTimeFormat().resolvedOptions().timeZone||'';
-  if(z.startsWith('Africa/'))return 'africa'; if(z.startsWith('Europe/'))return 'europe';
-  if(/^Asia\/(Dubai|Riyadh|Qatar|Bahrain|Kuwait|Muscat|Jerusalem|Tel_Aviv|Amman|Beirut|Baghdad|Tehran)/.test(z))return 'middle-east';
-  if(z.startsWith('America/'))return 'north-america'; if(z.startsWith('Asia/')||z.startsWith('Australia/')||z.startsWith('Pacific/'))return 'asia-pacific'; return '';}catch{return '';}})();
+/* ---- visitor location: saved choice > Vercel IP country > time zone ---- */
+const RSETS={
+  africa:'DZ AO BJ BW BF BI CV CM CF TD KM CG CD CI DJ EG GQ ER SZ ET GA GM GH GN GW KE LS LR LY MG MW ML MR MU MA MZ NA NE NG RW ST SN SC SL SO ZA SS SD TZ TG TN UG ZM ZW',
+  europe:'AL AD AT BY BE BA BG HR CY CZ DK EE FI FR DE GR HU IS IE IT XK LV LI LT LU MT MD MC ME NL MK NO PL PT RO SM RS SK SI ES SE CH UA GB VA',
+  'north-america':'US CA MX',
+  'middle-east':'AE SA QA BH KW OM IL JO LB IQ IR YE SY TR PS',
+  'asia-pacific':'AU NZ IN JP CN HK TW KR SG MY ID TH VN PH PK BD LK NP'
+};
+const regionOf=c=>{for(const r in RSETS)if(RSETS[r].split(' ').includes(c))return r;return c?'global':'';};
+const TZC={'Africa/Lagos':'NG','Africa/Accra':'GH','Africa/Nairobi':'KE','Africa/Johannesburg':'ZA','Africa/Cairo':'EG','Africa/Casablanca':'MA','Africa/Abidjan':'CI','Africa/Dakar':'SN','Africa/Kampala':'UG','Africa/Dar_es_Salaam':'TZ','Africa/Addis_Ababa':'ET','Africa/Kigali':'RW','Africa/Douala':'CM','Africa/Tunis':'TN','Africa/Algiers':'DZ',
+  'Europe/London':'GB','Europe/Dublin':'IE','Europe/Paris':'FR','Europe/Berlin':'DE','Europe/Amsterdam':'NL','Europe/Brussels':'BE','Europe/Madrid':'ES','Europe/Rome':'IT','Europe/Lisbon':'PT','Europe/Warsaw':'PL','Europe/Vienna':'AT','Europe/Zurich':'CH','Europe/Stockholm':'SE','Europe/Oslo':'NO','Europe/Copenhagen':'DK','Europe/Helsinki':'FI','Europe/Athens':'GR','Europe/Prague':'CZ','Europe/Bucharest':'RO','Europe/Budapest':'HU','Europe/Kyiv':'UA','Europe/Kiev':'UA','Europe/Istanbul':'TR',
+  'America/New_York':'US','America/Chicago':'US','America/Denver':'US','America/Los_Angeles':'US','America/Phoenix':'US','America/Anchorage':'US','America/Toronto':'CA','America/Vancouver':'CA','America/Mexico_City':'MX','America/Sao_Paulo':'BR','America/Argentina/Buenos_Aires':'AR','America/Buenos_Aires':'AR','America/Bogota':'CO','America/Lima':'PE','America/Santiago':'CL',
+  'Asia/Dubai':'AE','Asia/Riyadh':'SA','Asia/Qatar':'QA','Asia/Kuwait':'KW','Asia/Bahrain':'BH','Asia/Muscat':'OM','Asia/Jerusalem':'IL','Asia/Amman':'JO','Asia/Beirut':'LB',
+  'Asia/Kolkata':'IN','Asia/Calcutta':'IN','Asia/Tokyo':'JP','Asia/Shanghai':'CN','Asia/Hong_Kong':'HK','Asia/Singapore':'SG','Asia/Seoul':'KR','Asia/Manila':'PH','Asia/Jakarta':'ID','Asia/Bangkok':'TH','Asia/Karachi':'PK','Australia/Sydney':'AU','Australia/Melbourne':'AU','Australia/Perth':'AU','Pacific/Auckland':'NZ'};
+const cName=c=>{try{return new Intl.DisplayNames(['en'],{type:'region'}).of(c);}catch{return c;}};
+const ALLC=[...new Set(Object.values(RSETS).join(' ').split(' ').concat(['BR','AR','CL','CO','PE']))].map(c=>[c,cName(c)]).sort((a,b)=>a[1].localeCompare(b[1]));
+const USER={country:'',region:'',source:''};
+function setCountry(c,source){USER.country=c;USER.region=regionOf(c);USER.source=source;}
+(function initLocation(){
+  let saved=''; try{saved=localStorage.getItem('hd-country')||'';}catch{}
+  if(saved){setCountry(saved,'saved');return;}
+  try{const z=Intl.DateTimeFormat().resolvedOptions().timeZone||''; if(TZC[z])setCountry(TZC[z],'timezone');
+    else if(/^Africa\//.test(z))USER.region='africa'; else if(/^Europe\//.test(z))USER.region='europe'; else if(/^America\/(Argentina|Caracas|Montevideo|La_Paz|Asuncion|Guayaquil|Manaus|Recife|Bahia|Fortaleza|Belem)/.test(z))USER.region='global'; else if(/^America\//.test(z))USER.region='north-america'; else if(/^(Asia|Australia|Pacific)\//.test(z))USER.region='asia-pacific';}catch{}
+  // On the live site, Vercel knows the visitor's country from their connection; this overrides the time-zone guess.
+  try{const ctl=new AbortController();setTimeout(()=>ctl.abort(),2500);
+    fetch('/api/geo',{cache:'no-store',signal:ctl.signal}).then(r=>r.ok?r.json():null).then(j=>{if(j&&/^[A-Z]{2}$/.test(j.country)){setCountry(j.country,'network');onLocation();}}).catch(()=>{});}catch{}
+})();
+let prAuto=true;
+function onLocation(){ if(prAuto)PR=''; renderPStrip(); if(!document.getElementById('view-partners').hidden)renderPartners(); }
+function youHTML(){
+  const pin='<svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="#9FB4FF" stroke-width="1.7"><path d="M10 18s6-5.2 6-10a6 6 0 1 0-12 0c0 4.8 6 10 6 10z"/><circle cx="10" cy="8" r="2.2"/></svg>';
+  const where=USER.country?`<b>${esc(cName(USER.country))}</b>`:(USER.region?`<b>${esc(regName(USER.region))}</b>`:'<b>Location not set</b>');
+  const has=USER.region&&pVisible().some(i=>i.region===USER.region);
+  const note=USER.region?(has?(USER.region==='global'?'Showing stores that ship worldwide first.':`Showing stores for ${esc(regName(USER.region))} first.`):`No partner stores for ${esc(regName(USER.region))} yet. Worldwide stores may still deliver to you.`):'Choose your country to see stores that deliver to you.';
+  return `${pin}<span>You’re in ${where}. ${note}</span><label class="sr" for="youSel">Change country</label><select id="youSel"><option value="">Change country</option>${ALLC.map(([c,n])=>`<option value="${c}">${esc(n)}</option>`).join('')}</select>`;
+}
 let PR='', PF='';
 function pcardHTML(it){
   const pt=pOf(it.partner);
   return `<article class="card pcard">
-    <div class="thumb ${it.img?'has-media':''}">${it.img?`<img class="cover" src="${it.img}" alt="" loading="lazy">`:''}<span class="who">Sold by ${esc(pt.name)}</span>${it.sample?'<span class="ptag">Sample</span>':''}${it.img?'':`<span class="tb">${esc(pt.name)}</span><span class="tm">${esc(it.t)}</span><span class="ts">${esc(catOf(it.cat)?.name||'')}</span>`}</div>
+    <div class="thumb ${it.img?'has-media':''}">${it.img?`<img class="cover" src="${esc(it.img)}" alt="${esc(it.t)}" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentNode.classList.remove('has-media');this.remove()">`:''}<span class="who">Sold by ${esc(pt.name)}</span>${it.sample?'<span class="ptag">Sample</span>':''}<span class="tb">${esc(pt.name)}</span><span class="tm">${esc(it.t)}</span><span class="ts">${esc(catOf(it.cat)?.name||'')}</span></div>
     <div class="meta"><span class="title">${esc(it.t)}</span><span class="price">${pmoney(it.price,it.cur)}</span></div>
     <span class="rgn">${esc(regName(it.region))}, paid in ${it.cur}</span>
     <span class="fine">Paid on ${esc(pt.name)}. Not covered by Houlio Duo escrow.</span>
     <a class="btn btn-ghost btn-sm buy" href="${esc(it.url)}" target="_blank" rel="sponsored noopener noreferrer" data-pclick="${it.id}">Buy on ${esc(pt.name.replace(/ (Europe|US & Canada|Middle East|Asia-Pacific|US|Australia|Lounge)$/,''))}</a>
   </article>`;
 }
-const pVisible=()=>PITEMS.filter(i=>i.on).sort((a,b)=>(b.region===myRegion)-(a.region===myRegion));
+const pVisible=()=>PITEMS.filter(i=>i.on&&(i.img||i.sample)).sort((a,b)=>(b.region===USER.region)-(a.region===USER.region)||(b.region==='global')-(a.region==='global'));
 function renderPartners(){
   const items=pVisible();
+  if(prAuto&&PR===''&&USER.region&&items.some(i=>i.region===USER.region))PR=USER.region;
+  const yo=document.getElementById('pYou'); yo.innerHTML=youHTML(); document.getElementById('youSel').onchange=e=>{const c=e.target.value;if(!c)return;setCountry(c,'saved');try{localStorage.setItem('hd-country',c);}catch{}prAuto=true;PR='';PF='';renderPStrip();renderPartners();toast(`Location set to ${cName(c)}`);};
   const counts=Object.fromEntries(REGIONS.map(([r])=>[r,items.filter(i=>i.region===r).length]));
-  document.getElementById('pRegions').innerHTML=`<button class="chip" aria-pressed="${PR===''}" data-pr="">All regions</button>`+REGIONS.filter(([r])=>counts[r]).map(([r,n])=>`<button class="chip" aria-pressed="${PR===r}" data-pr="${r}">${n}${r===myRegion?' (you)':''} <span class="cnt">${counts[r]}</span></button>`).join('');
+  document.getElementById('pRegions').innerHTML=`<button class="chip" aria-pressed="${PR===''}" data-pr="">All regions</button>`+REGIONS.filter(([r])=>counts[r]).map(([r,n])=>`<button class="chip" aria-pressed="${PR===r}" data-pr="${r}">${n}${r===USER.region?' (you)':''} <span class="cnt">${counts[r]}</span></button>`).join('');
   const inReg=items.filter(i=>!PR||i.region===PR);
   const stores=[...new Set(inReg.map(i=>i.partner))];
   if(PF&&!stores.includes(PF))PF='';
   document.getElementById('pChips').innerHTML=stores.length>1?`<button class="chip" aria-pressed="${PF===''}" data-pf="">All stores</button>`+stores.map(id=>`<button class="chip" aria-pressed="${PF===id}" data-pf="${id}">${esc(pOf(id).name)}</button>`).join(''):'';
-  document.getElementById('pRegions').onclick=e=>{const b=e.target.closest('[data-pr]');if(b){PR=b.dataset.pr;PF='';renderPartners();}};
+  document.getElementById('pRegions').onclick=e=>{const b=e.target.closest('[data-pr]');if(b){prAuto=false;PR=b.dataset.pr;PF='';renderPartners();}};
   document.getElementById('pChips').onclick=e=>{const b=e.target.closest('[data-pf]');if(b){PF=b.dataset.pf;renderPartners();}};
   const list=inReg.filter(i=>!PF||i.partner===PF);
   document.getElementById('pCount').textContent=`${list.length} product${list.length===1?'':'s'}${PR?` in ${regName(PR)}`:''}`;
@@ -1433,6 +1475,7 @@ function renderPartners(){
 }
 function renderPStrip(){
   const items=pVisible().slice(0,8), sec=document.getElementById('partner-picks');
+  const sub=sec.querySelector('.sub'); if(sub)sub.textContent=USER.country?`Picks from marketplaces we work with, starting with stores for ${cName(USER.country)}. You buy on their site.`:'Picks from marketplaces we work with. You buy on their site.';
   sec.hidden=!items.length; document.getElementById('pStrip').innerHTML=items.map(pcardHTML).join('');
 }
 renderPStrip();
@@ -1450,9 +1493,10 @@ let PIMG='';
 function addPItem(e){
   e.preventDefault();
   const pt=pOf(apP.value), t=apT.value.trim(), pr=parseFloat(apPr.value), url=apU.value.trim(), msg=document.getElementById('apMsg');
-  const err=!t?'Enter the product name.':!(pr>0)?'Enter the price shown on the partner site.':!hostOk(url,pt)?`That isn’t a secure ${pt.name} link. Paste the affiliate link from your ${pt.name} dashboard.`:'';
+  const iu=(document.getElementById('apIU').value||'').trim(); let img=PIMG; if(!img&&/^https:\/\/\S+$/i.test(iu))img=iu;
+  const err=!t?'Enter the product name.':!(pr>0)?'Enter the price shown on the partner site.':!img?(iu?'The image link must start with https://.':'Add a product photo: upload one, or paste the image link from the store.'):!hostOk(url,pt)?`That isn’t a secure ${pt.name} link. Paste the affiliate link from your ${pt.name} dashboard.`:'';
   if(err){msg.innerHTML=`<span class="err">${esc(err)}</span>`;return;}
-  PITEMS.unshift({id:Math.max(0,...PITEMS.map(i=>i.id))+1,partner:pt.id,region:apR.value,t,price:pr,cur:apC.value,cat:apCat.value,url,img:PIMG,clicks:0,on:true});
+  PITEMS.unshift({id:Math.max(0,...PITEMS.map(i=>i.id))+1,partner:pt.id,region:apR.value,t,price:pr,cur:apC.value,cat:apCat.value,url,img,clicks:0,on:true});
   PIMG=''; log('Added partner product',`${t} (${pt.name}, ${regName(apR.value)})`); toast('Partner product added'); renderPStrip(); renderConsole();
 }
 const CURS=['USD','EUR','GBP','NGN','PLN','SEK','DKK','CHF','KES','GHS','ZAR','EGP','AED','SAR','CAD','AUD','INR','JPY'];
@@ -1471,16 +1515,17 @@ PANELS_EXTRA={
       <div class="field full"><label for="apT">Product name</label><input id="apT" placeholder="As shown on the partner site"></div>
       <div class="field"><label for="apPr">Price</label><input id="apPr" type="number" step="0.01" min="0" inputmode="decimal"></div>
       <div class="field"><label for="apC">Currency</label><select id="apC">${CURS.map(c=>`<option>${c}</option>`).join('')}</select></div>
-      <div class="field"><label for="apI">Photo (optional)</label><input id="apI" type="file" accept="image/*" style="padding-top:10px"></div>
+      <div class="field"><label for="apI">Product photo</label><input id="apI" type="file" accept="image/*" style="padding-top:10px"></div>
+      <div class="field full"><label for="apIU">Or image link from the store</label><input id="apIU" type="url" placeholder="https://… product image from the partner’s feed or link tool" spellcheck="false"></div>
       <div class="field full"><label for="apU">Affiliate link</label><input id="apU" type="url" placeholder="https://… from your partner dashboard" spellcheck="false"></div>
       <div class="full" style="display:flex;gap:14px;align-items:center;flex-wrap:wrap"><button class="btn btn-primary btn-sm">Add product</button><span id="apMsg" class="formnote"></span></div>
     </form>
     <h3>Partner products</h3>
-    <div class="tbl"><table class="t"><thead><tr><th>Product</th><th>Store</th><th>Region</th><th>Price</th><th>Clicks</th><th>Status</th><th></th></tr></thead><tbody>
-    ${PITEMS.length?PITEMS.map(i=>`<tr><td><b style="white-space:normal">${esc(i.t)}</b><div class="dim">${i.sample?'Sample, links to the store homepage':esc(new URL(i.url).hostname)}</div></td><td>${esc(pOf(i.partner).name)}</td><td>${esc(regName(i.region))}</td><td>${pmoney(i.price,i.cur)}</td><td>${i.clicks}</td><td>${stb(i.on?'Live':'Hidden')}</td>
-      <td><div class="act"><button class="mini" data-do="pi-toggle" data-id="${i.id}">${i.on?'Hide':'Show'}</button><button class="mini dan" data-do="pi-del" data-id="${i.id}">Remove</button></div></td></tr>`).join(''):`<tr><td colspan="7" class="empty-row">No partner products yet.</td></tr>`}
+    <div class="tbl"><table class="t"><thead><tr><th>Photo</th><th>Product</th><th>Store</th><th>Region</th><th>Price</th><th>Clicks</th><th>Status</th><th></th></tr></thead><tbody>
+    ${PITEMS.length?PITEMS.map(i=>`<tr><td>${i.img?`<img src="${esc(i.img)}" alt="" style="width:44px;height:44px;object-fit:cover;border-radius:6px;display:block" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'dim',textContent:'Broken'}))">`:'<span class="st warn">Needs photo</span>'}</td><td><b style="white-space:normal">${esc(i.t)}</b><div class="dim">${i.sample?'Sample, links to the store homepage':esc(new URL(i.url).hostname)}</div></td><td>${esc(pOf(i.partner).name)}</td><td>${esc(regName(i.region))}</td><td>${pmoney(i.price,i.cur)}</td><td>${i.clicks}</td><td>${stb(i.on?'Live':'Hidden')}</td>
+      <td><div class="act"><button class="mini" data-do="pi-toggle" data-id="${i.id}">${i.on?'Hide':'Show'}</button><button class="mini dan" data-do="pi-del" data-id="${i.id}">Remove</button></div></td></tr>`).join(''):`<tr><td colspan="8" class="empty-row">No partner products yet.</td></tr>`}
     </tbody></table></div>
-    <p class="formnote" style="margin-top:14px">Commission is earned and paid by each partner in its own currency. Check sales and payouts in their dashboards; clicks here count only taps on this site.</p>`;
+    <p class="formnote" style="margin-top:14px">Every product needs a photo before buyers see it. Sample rows have none and stay as text cards until you replace them. Commission is earned and paid by each partner in its own currency. Check sales and payouts in their dashboards; clicks here count only taps on this site.</p>`;
   }
 };
 const PDEF={jumia:'NGN',konga:'NGN','amazon-eu':'EUR','ebay-eu':'GBP',zalando:'EUR',bol:'EUR',backmarket:'EUR',allegro:'PLN','amazon-us':'USD','ebay-us':'USD','amazon-me':'AED','amazon-apac':'AUD','ebay-au':'AUD',aliexpress:'USD',temu:'USD',awin:'EUR'};
@@ -1529,7 +1574,7 @@ function renderConsole(){
   P.querySelectorAll('[data-feeform]').forEach(f=>f.onsubmit=saveFees);
   const ac=P.querySelector('#addCat'); if(ac)ac.onsubmit=addCat;
   const ap=P.querySelector('#addPItem'); if(ap){ap.onsubmit=addPItem;const sync=()=>{const pt=pOf(apP.value);apR.value=pt.region;apC.value=PDEF[pt.id]||'USD';};apP.onchange=sync;sync();}
-  const api=P.querySelector('#apI'); if(api)api.onchange=async()=>{const f=api.files[0];if(!f)return;try{PIMG=(await compressImage(f)).url;document.getElementById('apMsg').textContent='Photo ready';}catch{document.getElementById('apMsg').innerHTML='<span class="err">Couldn’t open that photo. Use JPG or PNG.</span>';}};
+  const api=P.querySelector('#apI'); if(api)api.onchange=async()=>{const f=api.files[0];if(!f)return;try{PIMG=(await compressImage(f)).url;document.getElementById('apMsg').innerHTML='<span style="color:var(--ok)">Photo ready</span>';}catch{document.getElementById('apMsg').innerHTML='<span class="err">Couldn’t open that photo. Use JPG or PNG.</span>';}};
   P.querySelectorAll('[data-ptag]').forEach(i=>i.onchange=()=>{const pt=pOf(i.dataset.ptag);pt.tag=i.value.trim();log('Saved affiliate ID',`${pt.name}: ${pt.tag||'cleared'}`);toast('Affiliate ID saved');renderConsole();});
 }
 const PANELS={
