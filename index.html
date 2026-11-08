@@ -357,6 +357,40 @@ dialog::backdrop{background:rgba(3,6,18,.72);backdrop-filter:blur(6px)}
 .upl small{color:var(--muted);margin-left:auto;font-size:13px;max-width:45%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .formnote{font-size:13.5px;color:var(--muted);margin-top:4px}
 
+/* ---------- listing media ---------- */
+.thumb img.cover{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.thumb.has-media::after{opacity:1;background:linear-gradient(to top,rgba(5,7,15,.9) 0%,rgba(5,7,15,.35) 45%,transparent 70%)}
+.thumb.has-media .cond{background:rgba(5,7,15,.6);backdrop-filter:blur(6px)}
+.thumb.has-media .esc{background:rgba(5,7,15,.6);padding:3px 8px;border-radius:6px;backdrop-filter:blur(6px)}
+.thumb .cond,.thumb .esc{z-index:2}
+.thumb .vbad{position:absolute;left:16px;bottom:16px;z-index:2;display:flex;align-items:center;gap:6px;font-size:12px;background:rgba(5,7,15,.7);padding:4px 8px;border-radius:6px;backdrop-filter:blur(6px)}
+.thumb.has-media::after{background:linear-gradient(to top,rgba(5,7,15,.55),transparent 35%)!important}
+@media (max-width:560px){.thumb{padding:14px}.thumb .cond{left:12px;top:12px}.thumb .esc{right:12px;top:12px}.thumb .esc .lbl{display:none}.thumb.has-media .esc{padding:4px 6px}.thumb .tm{font-size:18px}}.thumb .tb,.thumb .tm,.thumb .ts{z-index:2}
+.gallery .main.media{background:#000;border:1px solid var(--line);overflow:hidden}
+.gallery .main.media img,.gallery .main.media video{width:100%;height:100%;object-fit:contain;display:block}
+.gallery .thumbs{grid-template-columns:repeat(auto-fill,minmax(64px,1fr))}
+.gallery .thumbs button{position:relative;overflow:hidden;padding:0}
+.gallery .thumbs img,.gallery .thumbs video{width:100%;height:100%;object-fit:cover;display:block}
+.gallery .thumbs .play{position:absolute;inset:0;display:grid;place-items:center;background:rgba(0,0,0,.3)}
+.drop{position:relative;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;padding:30px 20px;border:1px dashed rgba(160,175,215,.35);border-radius:var(--r-md);cursor:pointer;transition:border-color .2s,background .2s}
+.drop:hover,.drop.over{border-color:var(--cyan);background:rgba(61,224,245,.04)}
+.drop input{position:absolute;opacity:0;width:1px;height:1px}
+.drop b{font-weight:600}.drop span{color:var(--muted);font-size:14px}
+.media-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:14px}
+.mi{position:relative;aspect-ratio:1/1;border-radius:8px;overflow:hidden;background:var(--navy);border:1px solid var(--line)}
+.mi img,.mi video{width:100%;height:100%;object-fit:cover;display:block}
+.mi .tag{position:absolute;left:6px;top:6px;font-size:11px;font-weight:500;background:rgba(5,7,15,.78);padding:2px 6px;border-radius:5px}
+.mi .rm{position:absolute;right:6px;top:6px;width:26px;height:26px;border-radius:6px;background:rgba(5,7,15,.78);display:grid;place-items:center}
+.mi .mk{position:absolute;left:6px;bottom:6px;font-size:11px;font-weight:500;background:rgba(5,7,15,.78);padding:3px 7px;border-radius:5px}
+.mi .dur{position:absolute;right:6px;bottom:6px;font-size:11px;background:rgba(5,7,15,.78);padding:2px 6px;border-radius:5px}
+.mi.busy{display:grid;place-items:center;color:var(--muted);font-size:12px}
+.mcount{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin-top:10px}
+.errs{margin-top:10px;display:flex;flex-direction:column;gap:4px}
+.errs span{color:#FF7A8A;font-size:13px}
+.rev{display:grid;grid-template-columns:minmax(0,220px) minmax(0,1fr);gap:24px;align-items:start}
+.rev .facts{font-size:14px}
+@media (max-width:560px){.media-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.rev{grid-template-columns:minmax(0,1fr)}.rev .card{max-width:240px}}
+
 /* ---------- owner console ---------- */
 .console{padding:92px 0 60px;background:var(--midnight);min-height:100vh}
 .con-top{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:26px}
@@ -448,6 +482,7 @@ table.t{width:100%;border-collapse:collapse;font-size:14.5px;min-width:640px}
   <a href="#escrow">Escrow</a>
   <a href="#assets">Payments</a>
   <a href="#sell">Start selling</a>
+  <a href="#" data-list="1">List an item</a>
   <a href="#" data-auth="signin">Sign in</a>
 </div>
 
@@ -644,7 +679,7 @@ table.t{width:100%;border-collapse:collapse;font-size:14.5px;min-width:640px}
           <li><svg width="16" height="16" viewBox="0 0 14 14" fill="none" stroke="#3DE0F5" stroke-width="1.8" style="margin-top:5px;flex:none"><path d="M2 7.5l3 3 7-7"/></svg>Choose which assets and networks you accept per listing.</li>
           <li><svg width="16" height="16" viewBox="0 0 14 14" fill="none" stroke="#3DE0F5" stroke-width="1.8" style="margin-top:5px;flex:none"><path d="M2 7.5l3 3 7-7"/></svg>Open a business store once your company is accredited.</li>
         </ul>
-        <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn btn-primary" data-auth="seller">Create a seller account</button><button class="btn btn-ghost" data-auth="business">Open a business store</button></div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn btn-primary" data-auth="seller">Create a seller account</button><button class="btn btn-ghost" data-auth="business">Open a business store</button><button class="btn btn-ghost" data-list="1">List an item</button></div>
       </div>
       <div class="calc">
         <label for="calcIn">If you sell an item for</label>
@@ -660,7 +695,7 @@ table.t{width:100%;border-collapse:collapse;font-size:14.5px;min-width:640px}
 <div class="view market" id="view-market" hidden>
   <div class="wrap">
     <div class="market-top">
-      <h1>Marketplace</h1>
+      <div style="display:flex;align-items:end;gap:18px;flex-wrap:wrap"><h1>Marketplace</h1><button class="btn btn-primary btn-sm" data-list="1">List an item</button></div>
       <span class="notice">Sample listings for design review</span>
     </div>
     <div class="market-body">
@@ -775,8 +810,9 @@ const L=[
   {id:13,b:'Polaroid',m:'SX-70',sp:'1970s, refurbished',t:'Polaroid SX-70, 1970s, refurbished',cat:'collect',icon:'polaroid',price:340,cond:'Good',assets:['USDC','XMR'],seller:'aria',loc:'Nigeria',ship:'Insured courier',ret:'7-day returns',saves:29,age:8,desc:'Bellows replaced, tested with a fresh pack. Leather skins original.'},
   {id:14,b:'Walnut',m:'Lounge chair',sp:'Mid-century, project',t:'Mid-century lounge chair, walnut',cat:'home',icon:'chair',price:520,cond:'For parts or repair',assets:['USDT'],seller:'yuki',loc:'Japan',ship:'Local pickup only',ret:'No returns',saves:9,age:12,desc:'Frame solid, upholstery needs replacing. Sold as a restoration project.'}
 ];
-const HIDDEN=new Set(), SUSPENDED=new Set();
-const visible=p=>!HIDDEN.has(p.id)&&!SUSPENDED.has(p.seller);
+const esc=v=>String(v??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const HIDDEN=new Set(), SUSPENDED=new Set(), PENDING=new Set(), REJECTED=new Set();
+const visible=p=>!HIDDEN.has(p.id)&&!SUSPENDED.has(p.seller)&&!PENDING.has(p.id)&&!REJECTED.has(p.id);
 const CONDS=['Brand new','Like new','Good','Fair','For parts or repair'];
 const ASSETS=['XMR','USDT','USDC'];
 const NETS={XMR:['Monero'],USDT:['Ethereum','Tron','Polygon','Arbitrum'],USDC:['Ethereum','Polygon','Arbitrum']};
@@ -787,9 +823,10 @@ const escIcon='<svg width="16" height="16" viewBox="0 0 96 64" fill="none" aria-
 
 function cardHTML(p){
   const c=catOf(p.cat), s=SELLERS[p.seller];
-  return `<button class="card" data-id="${p.id}" aria-label="${p.t}, ${fmt(p.price)}">
-    <div class="thumb"><span class="cond">${p.cond}</span><span class="esc">${escIcon} Escrow</span><span class="tb">${p.b}</span><span class="tm">${p.m}</span><span class="ts">${p.sp}</span></div>
-    <div class="meta"><span class="title">${p.t}</span><span class="price">${fmt(p.price)}</span></div>
+  const cov=p.media&&p.media.find(m=>m.type==='image'), nv=p.media?p.media.filter(m=>m.type==='video').length:0;
+  return `<button class="card" data-id="${p.id}" aria-label="${esc(p.t)}, ${fmt(p.price)}">
+    <div class="thumb ${cov?'has-media':''}">${cov?`<img class="cover" src="${cov.url}" alt="" loading="lazy">`:''}<span class="cond">${p.cond}</span><span class="esc">${escIcon}<span class="lbl">Escrow</span></span>${cov?(nv?`<span class="vbad"><svg width="10" height="10" viewBox="0 0 14 14" fill="#fff"><path d="M3 1.5v11l9-5.5z"/></svg>${nv} video${nv>1?'s':''}</span>`:''):`<span class="tb">${esc(p.b)}</span><span class="tm">${esc(p.m)}</span><span class="ts">${esc(p.sp)}</span>`}</div>
+    <div class="meta"><span class="title">${esc(p.t)}</span><span class="price">${fmt(p.price)}</span></div>
     <div class="meta foot2"><span class="seller">${s.name} ${s.lvl!=='individual'?lvlBadge(s.lvl):''}</span><span class="assets">${p.assets.map(a=>`<span class="asset-dot">${a}</span>`).join('')}</span></div>
   </button>`;
 }
@@ -888,6 +925,7 @@ document.addEventListener('click',e=>{
   const c=e.target.closest('[data-cat]'); if(c){goMarket({cat:c.dataset.cat});return;}
   const k=e.target.closest('.card'); if(k){openListing(+k.dataset.id);return;}
   const s=e.target.closest('[data-soon]'); if(s){e.preventDefault();soon(s.dataset.soon);return;}
+  const li=e.target.closest('[data-list]'); if(li){e.preventDefault();document.getElementById('sheet').classList.remove('open');openListWizard();return;}
   const a=e.target.closest('[data-auth]'); if(a){e.preventDefault();document.getElementById('sheet').classList.remove('open');a.dataset.auth==='signin'?openSignin():openRegister(a.dataset.auth);}
 });
 
@@ -916,22 +954,25 @@ const xBtn='<button class="dlg-x" onclick="dlg.close()" aria-label="Close"><svg 
 dlg.addEventListener('click',e=>{if(e.target===dlg)dlg.close();});
 function openListing(id){
   const p=L.find(x=>x.id===id), c=catOf(p.cat), s=SELLERS[p.seller];
-  const alt=['box',p.icon,p.icon,'box'];
+  const M=p.media||[];
+  const mainHTML=m=>m.type==='video'?`<video src="${m.url}" controls playsinline preload="metadata"></video>`:`<img src="${m.url}" alt="${esc(p.t)}">`;
   body.innerHTML=`${xBtn}<div class="detail">
-    <div class="gallery"><div class="main thumb" id="gMain"><span class="tb">${p.b}</span><span class="tm">${p.m}</span><span class="ts">${p.sp}</span></div>
-      <div class="thumbs">${[1,2,3,4].map(i=>`<button aria-current="${i===1}" aria-label="Photo ${i}">Photo ${i}</button>`).join('')}</div></div>
+    <div class="gallery">${M.length?`<div class="main media" id="gMain">${mainHTML(M[0])}</div>
+      <div class="thumbs">${M.map((m,i)=>`<button aria-current="${i===0}" aria-label="${m.type==='video'?'Video':'Photo'} ${i+1}" data-mi="${i}">${m.type==='video'?`<video src="${m.url}" muted preload="metadata"></video><span class="play"><svg width="14" height="14" viewBox="0 0 14 14" fill="#fff"><path d="M3 1.5v11l9-5.5z"/></svg></span>`:`<img src="${m.url}" alt="">`}</button>`).join('')}</div>`
+      :`<div class="main thumb" id="gMain"><span class="tb">${esc(p.b)}</span><span class="tm">${esc(p.m)}</span><span class="ts">${esc(p.sp)}</span></div>
+      <div class="thumbs">${[1,2,3,4].map(i=>`<button aria-current="${i===1}" aria-label="Photo ${i}">Photo ${i}</button>`).join('')}</div>`}</div>
     <div class="info">
-      <span class="notice" style="align-self:flex-start">Sample listing</span>
-      <h2>${p.t}</h2>
+      <span class="notice" style="align-self:flex-start">${p.mine?(PENDING.has(p.id)?'Waiting for review':'Your listing'):'Sample listing'}</span>
+      <h2>${esc(p.t)}</h2>
       <div class="price-lg">${fmt(p.price)} <span style="font-size:15px;color:var(--muted);font-family:var(--body);font-weight:500">paid as ${p.assets.join(', ')}</span></div>
-      <p class="desc">${p.desc}</p>
+      <p class="desc" style="white-space:pre-line">${esc(p.desc)}</p>
       <dl class="facts">
         <dt>Condition</dt><dd>${p.cond}</dd>
         <dt>Category</dt><dd>${c.name}</dd>
-        <dt>Location</dt><dd>${p.loc}</dd>
-        <dt>Delivery</dt><dd>${p.ship}</dd>
-        <dt>Returns</dt><dd>${p.ret}</dd>
-        <dt>Availability</dt><dd>1 in stock</dd>
+        <dt>Location</dt><dd>${esc(p.loc)}</dd>
+        <dt>Delivery</dt><dd>${esc(p.ship)}</dd>
+        <dt>Returns</dt><dd>${esc(p.ret)}</dd>
+        <dt>Availability</dt><dd>${p.qty||1} in stock</dd>
         <dt>Escrow</dt><dd style="color:var(--cyan)">Covered on every payment option</dd>
       </dl>
       ${p.restricted?'<div class="compliance">18+ and region-restricted. Shown only where resale of this card is allowed by its issuer and local law.</div>':''}
@@ -940,6 +981,7 @@ function openListing(id){
     </div></div>`;
   body.querySelectorAll('.gallery .thumbs button').forEach(b=>b.onclick=()=>{
     body.querySelectorAll('.gallery .thumbs button').forEach(x=>x.setAttribute('aria-current','false'));b.setAttribute('aria-current','true');
+    if(b.dataset.mi!==undefined){const g=document.getElementById('gMain');g.querySelectorAll('video').forEach(v=>v.pause());g.innerHTML=mainHTML(M[+b.dataset.mi]);}
   });
   if(!dlg.open)dlg.showModal(); body.scrollTop=0;
 }
@@ -984,7 +1026,6 @@ function soon(what){
 
 /* ============ toast ============ */
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('show'),2400);}
-const esc=v=>String(v??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
 /* ============ sign in ============ */
 function wideDlg(px){dlg.style.maxWidth=px+'px';dlg.addEventListener('close',()=>dlg.style.maxWidth='',{once:true});}
@@ -1088,6 +1129,161 @@ function submitApp(){
   log('Application received',`${APPS[0].name} (${W.type==='business'?'business store':'individual seller'})`,'System');
 }
 
+/* ============ list an item: photos, videos, details ============ */
+const LIM={photos:10,videos:2,photoMB:15,videoMB:200,videoSec:60,maxPx:1600};
+SELLERS.you={name:'Your store',lvl:'individual',country:'Nigeria'};
+let LW;
+function openListWizard(){
+  LW={step:0,media:[],busy:0,errs:[],err:{},d:{cat:'elec',cond:'Like new',assets:['USDT','USDC'],country:'Nigeria',del:['Shipping'],ret:'14-day returns',qty:1}};
+  drawLW(); wideDlg(720); if(!dlg.open)dlg.showModal();
+}
+window.openListWizard=openListWizard;
+const LSTEPS=['media','details','price','delivery','review','done'];
+const fmtMB=n=>(n/1048576).toFixed(n<1048576*10?1:0)+' MB';
+const mmss=t=>`${Math.floor(t/60)}:${String(Math.round(t%60)).padStart(2,'0')}`;
+function compressImage(file){
+  return new Promise((res,rej)=>{
+    const u=URL.createObjectURL(file), img=new Image();
+    img.onload=()=>{
+      const k=Math.min(1,LIM.maxPx/Math.max(img.naturalWidth,img.naturalHeight));
+      const w=Math.round(img.naturalWidth*k), h=Math.round(img.naturalHeight*k);
+      const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);
+      c.toBlob(b=>{ if(b&&b.size<file.size){URL.revokeObjectURL(u);res({url:URL.createObjectURL(b),size:b.size,w,h});} else res({url:u,size:file.size,w:img.naturalWidth,h:img.naturalHeight}); },'image/jpeg',.82);
+    };
+    img.onerror=()=>{URL.revokeObjectURL(u);rej();};
+    img.src=u;
+  });
+}
+function videoMeta(file){
+  return new Promise((res,rej)=>{const u=URL.createObjectURL(file),v=document.createElement('video');v.preload='metadata';v.muted=true;
+    v.onloadedmetadata=()=>res({url:u,dur:v.duration,w:v.videoWidth,h:v.videoHeight});v.onerror=()=>{URL.revokeObjectURL(u);rej();};v.src=u;});
+}
+async function addFiles(list){
+  const files=[...list]; LW.errs=[]; delete LW.err.media;
+  for(const f of files){
+    const key=f.name+':'+f.size;
+    if(LW.media.some(m=>m.key===key)){LW.errs.push(`${f.name} is already added.`);continue;}
+    const isImg=f.type.startsWith('image/')||/\.(jpe?g|png|webp|heic|heif)$/i.test(f.name);
+    const isVid=f.type.startsWith('video/')||/\.(mp4|mov|webm|m4v)$/i.test(f.name);
+    const nImg=LW.media.filter(m=>m.type==='image').length, nVid=LW.media.filter(m=>m.type==='video').length;
+    if(!isImg&&!isVid){LW.errs.push(`${f.name} isn’t a photo or video.`);continue;}
+    if(isImg){
+      if(nImg>=LIM.photos){LW.errs.push(`You can add up to ${LIM.photos} photos.`);continue;}
+      if(f.size>LIM.photoMB*1048576){LW.errs.push(`${f.name} is ${fmtMB(f.size)}. Photos must be under ${LIM.photoMB} MB.`);continue;}
+      LW.busy++;drawLW();
+      try{const r=await compressImage(f);LW.media.push({type:'image',key,name:f.name,...r,orig:f.size});}
+      catch{LW.errs.push(`Couldn’t open ${f.name}. Save it as JPG or PNG and try again.`);}
+      LW.busy--;
+    } else {
+      if(nVid>=LIM.videos){LW.errs.push(`You can add up to ${LIM.videos} videos.`);continue;}
+      if(f.size>LIM.videoMB*1048576){LW.errs.push(`${f.name} is ${fmtMB(f.size)}. Videos must be under ${LIM.videoMB} MB.`);continue;}
+      LW.busy++;drawLW();
+      try{const r=await videoMeta(f);
+        if(r.dur>LIM.videoSec+.5){URL.revokeObjectURL(r.url);LW.errs.push(`${f.name} is ${mmss(r.dur)} long. Videos can be up to ${LIM.videoSec} seconds.`);}
+        else LW.media.push({type:'video',key,name:f.name,size:f.size,...r});}
+      catch{LW.errs.push(`Couldn’t play ${f.name}. Use MP4, MOV or WebM.`);}
+      LW.busy--;
+    }
+  }
+  drawLW();
+}
+function lwField(id,label,type='text',extra=''){return `<div class="field"><label for="l_${id}">${label}</label><input id="l_${id}" data-k="${id}" type="${type}" value="${esc(LW.d[id])}" ${extra}>${LW.err[id]?`<span class="err">${LW.err[id]}</span>`:''}</div>`;}
+function lwSel(id,label,opts){return `<div class="field"><label for="l_${id}">${label}</label><select id="l_${id}" data-k="${id}">${opts.map(o=>`<option value="${esc(o.v??o)}" ${String(LW.d[id])===String(o.v??o)?'selected':''}>${esc(o.l??o)}</option>`).join('')}</select>${LW.err[id]?`<span class="err">${LW.err[id]}</span>`:''}</div>`;}
+function lwDraft(){const d=LW.d,c=catOf(d.cat);const del=d.del.map(x=>x==='Shipping'&&d.courier?`Shipping (${d.courier})`:x).join(', ');
+  return {id:0,b:d.brand||c.name,m:d.title||'Your item',sp:d.cond,t:d.title||'Your item',cat:d.cat,price:+d.price||0,cond:d.cond,assets:d.assets,seller:'you',loc:[d.city,d.country].filter(Boolean).join(', '),ship:del,ret:d.ret,saves:0,age:0,desc:d.desc,qty:+d.qty||1,media:LW.media.map(m=>({type:m.type,url:m.url})),restricted:d.cat==='poker',mine:true};}
+function drawLW(){
+  const key=LSTEPS[LW.step], d=LW.d;
+  const bar=`<div class="wiz-steps">${LSTEPS.slice(0,-1).map((_,i)=>`<i class="${i<=LW.step?'on':''}"></i>`).join('')}</div>`;
+  let h='';
+  if(key==='media'){
+    const ni=LW.media.filter(m=>m.type==='image').length, nv=LW.media.length-ni; let firstImg=LW.media.findIndex(m=>m.type==='image');
+    h=`<h2>Add photos and videos</h2><p class="sub">Show the real item from every side, plus any marks or damage. The first photo is your cover.</p>
+      <label class="drop" id="drop"><input type="file" id="mf" multiple accept="image/*,video/mp4,video/quicktime,video/webm,.heic,.heif,.mov">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#9FB4FF" stroke-width="1.6"><path d="M12 16V4M7 9l5-5 5 5M4 20h16"/></svg>
+        <b>Add photos or videos</b><span>Tap to choose, or drag files here. JPG, PNG, WebP, HEIC, MP4, MOV or WebM.</span></label>
+      ${LW.media.length||LW.busy?`<div class="media-grid">${LW.media.map((m,i)=>`<div class="mi">${m.type==='video'?`<video src="${m.url}#t=0.1" muted playsinline preload="metadata"></video><span class="dur">${mmss(m.dur)}</span>`:`<img src="${m.url}" alt="${esc(m.name)}">`}
+        ${i===firstImg?'<span class="tag">Cover</span>':m.type==='image'?`<button type="button" class="mk" data-cover="${i}">Make cover</button>`:'<span class="tag">Video</span>'}
+        <button type="button" class="rm" data-rm="${i}" aria-label="Remove ${esc(m.name)}"><svg width="12" height="12" viewBox="0 0 16 16" stroke="#fff" stroke-width="2"><path d="M3 3l10 10M13 3L3 13"/></svg></button></div>`).join('')}${LW.busy?'<div class="mi busy">Processing…</div>':''}</div>`:''}
+      <div class="mcount"><span>${ni} of ${LIM.photos} photos, ${nv} of ${LIM.videos} videos</span><span>Videos up to ${LIM.videoSec} seconds</span></div>
+      <div class="errs">${[...LW.errs,LW.err.media].filter(Boolean).map(e=>`<span>${esc(e)}</span>`).join('')}</div>`;
+  } else if(key==='details'){
+    h=`<h2>Describe your item</h2><p class="sub">Be specific. Accurate listings sell faster and avoid disputes.</p>
+      ${lwField('title','Title','text','maxlength="80" placeholder="e.g. iPhone 13, 128 GB, unlocked, blue"')}
+      <div class="two">${lwSel('cat','Category',CATS.map(c=>({v:c.id,l:c.name})))}${lwSel('cond','Condition',CONDS)}</div>
+      <div class="two">${lwField('brand','Brand (optional)')}${lwField('qty','Quantity','number','min="1" max="999" inputmode="numeric"')}</div>
+      <div class="field"><label for="l_desc">Description</label><textarea id="l_desc" data-k="desc" rows="5" placeholder="What’s included, how long you’ve had it, any faults">${esc(d.desc)}</textarea>${LW.err.desc?`<span class="err">${LW.err.desc}</span>`:''}</div>
+      ${d.cat==='poker'?`<label class="toggle" style="font-size:14px;align-items:flex-start"><input type="checkbox" data-k="legal" ${d.legal?'checked':''} style="margin-top:3px"> I confirm this item is mine, is not stolen or counterfeit, and can legally be resold and transferred where I live.</label>${LW.err.legal?`<span class="err" style="color:#FF7A8A;font-size:13px">${LW.err.legal}</span>`:''}`:''}`;
+  } else if(key==='price'){
+    const pr=+d.price||0;
+    h=`<h2>Price and payment</h2><p class="sub">Set your price in US dollars. Buyers pay in the coins you accept.</p>
+      ${lwField('price','Price (USD)','number','min="1" step="0.01" inputmode="decimal"')}
+      <div class="co-label" style="margin-top:4px">Accept payment in</div>
+      <div class="opt-row">${ASSETS.map(a=>`<button type="button" class="opt" data-asset="${a}" aria-pressed="${d.assets.includes(a)}">${a}</button>`).join('')}</div>
+      ${LW.err.assets?`<span class="err" style="color:#FF7A8A;font-size:13px;display:block;margin-top:6px">${LW.err.assets}</span>`:''}
+      <div class="summary" style="margin-top:20px"><dl>
+        <dt>Buyer pays</dt><dd>${money(pr?pr+FEES.buyerFlat:0)}</dd>
+        <dt>Seller fee</dt><dd>−${money(FEES.sellerFlat)}</dd>
+        <dt class="total">You receive</dt><dd class="total">${money(Math.max(0,pr-FEES.sellerFlat))}</dd></dl>
+        <p class="gate" style="margin-top:12px">A $${FEES.withdrawal.toFixed(2)} fee applies when you withdraw to your wallet.</p></div>`;
+  } else if(key==='delivery'){
+    h=`<h2>Location and delivery</h2><p class="sub">Buyers filter by location, so use the city the item ships from.</p>
+      <div class="two">${lwSel('country','Country',COUNTRIES)}${lwField('city','City','text','placeholder="e.g. Warri"')}</div>
+      <div class="co-label" style="margin-top:4px">How buyers get it</div>
+      <div class="opt-row">${['Shipping','Local pickup','Digital delivery'].map(x=>`<button type="button" class="opt" data-del="${x}" aria-pressed="${d.del.includes(x)}">${x}</button>`).join('')}</div>
+      ${LW.err.del?`<span class="err" style="color:#FF7A8A;font-size:13px;display:block;margin-top:6px">${LW.err.del}</span>`:''}
+      ${d.del.includes('Shipping')?`<div style="margin-top:16px">${lwField('courier','Courier and delivery time','text','placeholder="e.g. GIG Logistics, 2–4 days"')}</div>`:'<div style="height:16px"></div>'}
+      ${lwSel('ret','Returns',['No returns','7-day returns','14-day returns','30-day returns'])}`;
+  } else if(key==='review'){
+    const dr=lwDraft(), ni=LW.media.filter(m=>m.type==='image').length, nv=LW.media.length-ni;
+    h=`<h2>Check your listing</h2><p class="sub">This is how buyers will see it once it’s approved.</p>
+      <div class="rev"><div style="pointer-events:none">${cardHTML(dr)}</div>
+      <dl class="facts"><dt>Media</dt><dd>${ni} photo${ni===1?'':'s'}${nv?`, ${nv} video${nv===1?'':'s'}`:''}</dd><dt>Category</dt><dd>${esc(catOf(d.cat).name)}</dd><dt>Condition</dt><dd>${esc(d.cond)}</dd><dt>Quantity</dt><dd>${dr.qty}</dd><dt>Payment</dt><dd>${d.assets.join(', ')}</dd><dt>Location</dt><dd>${esc(dr.loc)}</dd><dt>Delivery</dt><dd>${esc(dr.ship)}</dd><dt>Returns</dt><dd>${esc(d.ret)}</dd><dt>You receive</dt><dd>${money(Math.max(0,dr.price-FEES.sellerFlat))}</dd></dl></div>`;
+  } else {
+    h=`<div style="text-align:center;padding:10px 0"><h2>Sent for review</h2>
+      <p class="sub" style="margin:10px auto 0;max-width:44ch">We check every new listing before it goes live, usually within a few hours. You’ll get a notification when buyers can see it.</p>
+      <p class="formnote" style="margin-top:14px">Preview only: your photos and videos stay on this device and aren’t uploaded.</p></div>`;
+  }
+  const last=key==='done';
+  body.innerHTML=`${xBtn}<form class="wiz" id="lwForm" novalidate>${last?'':bar}${h}
+    <div class="wiz-foot">${LW.step>0&&!last?'<button type="button" class="btn btn-ghost" id="lwBack">Back</button>':'<span></span>'}
+    <button class="btn btn-primary" ${LW.busy?'disabled':''}>${last?'Done':key==='review'?'Submit listing':'Continue'}</button></div></form>`;
+  const f=document.getElementById('lwForm');
+  f.querySelectorAll('[data-k]').forEach(i=>{i.oninput=i.onchange=()=>{LW.d[i.dataset.k]=i.type==='checkbox'?i.checked:i.value;
+    if(i.dataset.k==='cat'||(i.dataset.k==='price'&&key==='price')){const pos=i.selectionStart;drawLW();const n=document.getElementById(i.id);if(n){n.focus();try{n.setSelectionRange(pos,pos)}catch{}}}};});
+  const mf=document.getElementById('mf'); if(mf)mf.onchange=()=>{addFiles(mf.files);mf.value='';};
+  const drop=document.getElementById('drop');
+  if(drop){['dragenter','dragover'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add('over');}));
+    ['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove('over');}));
+    drop.addEventListener('drop',e=>addFiles(e.dataTransfer.files));}
+  f.querySelectorAll('[data-rm]').forEach(b=>b.onclick=()=>{const m=LW.media.splice(+b.dataset.rm,1)[0];URL.revokeObjectURL(m.url);LW.errs=[];drawLW();});
+  f.querySelectorAll('[data-cover]').forEach(b=>b.onclick=()=>{const m=LW.media.splice(+b.dataset.cover,1)[0];LW.media.unshift(m);drawLW();});
+  f.querySelectorAll('[data-asset]').forEach(b=>b.onclick=()=>{const a=b.dataset.asset;d.assets=d.assets.includes(a)?d.assets.filter(x=>x!==a):[...d.assets,a];drawLW();});
+  f.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{const a=b.dataset.del;d.del=d.del.includes(a)?d.del.filter(x=>x!==a):[...d.del,a];drawLW();});
+  const back=document.getElementById('lwBack'); if(back)back.onclick=()=>{LW.step--;LW.err={};drawLW();body.scrollTop=0;};
+  f.onsubmit=e=>{e.preventDefault();if(LW.busy)return;if(last){dlg.close();return;}
+    if(lwValidate(key)){if(key==='review')lwSubmit();LW.step++;LW.err={};LW.errs=[];}
+    drawLW();body.scrollTop=0;};
+}
+function lwValidate(key){
+  const d=LW.d,e={};
+  if(key==='media'&&!LW.media.some(m=>m.type==='image'))e.media='Add at least one photo. Videos are optional.';
+  if(key==='details'){
+    const t=(d.title||'').trim();
+    if(t.length<8)e.title='Use at least 8 characters, e.g. brand, model and size.';
+    else if(L.some(p=>p.t.toLowerCase()===t.toLowerCase()&&!REJECTED.has(p.id)))e.title='A listing with this exact title already exists. Add detail to tell it apart.';
+    if((d.desc||'').trim().length<30)e.desc='Write at least 30 characters so buyers know what they’re getting.';
+    if(!(+d.qty>=1))e.qty='Enter 1 or more.';
+    if(d.cat==='poker'&&!d.legal)e.legal='You need to confirm this before listing poker or card products.';
+  }
+  if(key==='price'){if(!(+d.price>=1))e.price='Enter a price of at least $1.';else if(+d.price<=FEES.sellerFlat)e.price=`Your price must be more than the $${FEES.sellerFlat} seller fee.`;if(!d.assets.length)e.assets='Choose at least one coin.';}
+  if(key==='delivery'){if(!(d.city||'').trim())e.city='Enter the city the item ships from.';if(!d.del.length)e.del='Choose at least one way to deliver.';if(d.del.includes('Shipping')&&!(d.courier||'').trim())e.courier='Tell buyers which courier and how long it takes.';}
+  LW.err=e; return !Object.keys(e).length;
+}
+function lwSubmit(){
+  const dr=lwDraft(); dr.id=Math.max(...L.map(p=>p.id))+1; L.unshift(dr); PENDING.add(dr.id);
+  log('New listing submitted',`${dr.t} (${dr.media.length} media)`,'System');
+}
+
 /* ============ owner console ============ */
 const HELD=['Payment confirmed','Funds secured','Seller notified','Order processing','Shipped or delivered','Awaiting buyer confirmation','Refund requested','Disputed','Under review'];
 const ORDERS=[
@@ -1120,10 +1316,10 @@ function log(action,detail,who='Owner'){const d=new Date();AUDIT.unshift({t:d.to
 log('Console opened','Session started');
 const amt=o=>L.find(x=>x.id===o.item).price;
 const sellerOf=o=>L.find(x=>x.id===o.item).seller;
-const stCls=s=>/Released|Completed|Paid|Approved|Active|Resolved/.test(s)?'ok':/Disput|review|Refund requested|Pending|Held/.test(s)?'warn':/Refunded|Rejected|Suspended|Hidden/i.test(s)?'bad':'info';
+const stCls=s=>/Released|Completed|Paid|Approved|Active|Resolved|Live/.test(s)?'ok':/Disput|review|Refund requested|Pending|Held/i.test(s)?'warn':/Refunded|Rejected|Suspended|Hidden/i.test(s)?'bad':'info';
 const stb=s=>`<span class="st ${stCls(s)}">${esc(s)}</span>`;
 let conTab='overview';
-const TABS=[['overview','Overview'],['verify','Verification',()=>APPS.filter(a=>a.state==='Pending').length],['orders','Orders and escrow',()=>ORDERS.filter(o=>HELD.includes(o.state)).length],['disputes','Disputes',()=>DISPUTES.filter(d=>d.state==='Under review').length],['withdrawals','Withdrawals',()=>WDR.filter(w=>w.state==='Pending').length],['listings','Listings'],['users','Users'],['categories','Categories'],['fees','Fees'],['audit','Audit log']];
+const TABS=[['overview','Overview'],['verify','Verification',()=>APPS.filter(a=>a.state==='Pending').length],['orders','Orders and escrow',()=>ORDERS.filter(o=>HELD.includes(o.state)).length],['disputes','Disputes',()=>DISPUTES.filter(d=>d.state==='Under review').length],['withdrawals','Withdrawals',()=>WDR.filter(w=>w.state==='Pending').length],['listings','Listings',()=>PENDING.size],['users','Users'],['categories','Categories'],['fees','Fees'],['audit','Audit log']];
 function money(n){return '$'+n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
 function renderConsole(){
   document.getElementById('conNav').innerHTML=TABS.map(([k,l,c])=>{const n=c?c():0;return `<button data-tab="${k}" aria-current="${conTab===k}">${l}${n?`<span class="bd">${n}</span>`:''}</button>`;}).join('');
@@ -1150,6 +1346,7 @@ const PANELS={
         <button data-tab="verify"><span>${pv} store or seller application${pv===1?'':'s'} to review</span><span class="dim">Open</span></button>
         <button data-tab="disputes"><span>${od} open dispute${od===1?'':'s'}</span><span class="dim">Open</span></button>
         <button data-tab="withdrawals"><span>${pw.length} withdrawal${pw.length===1?'':'s'} to approve</span><span class="dim">Open</span></button>
+        <button data-tab="listings"><span>${PENDING.size} new listing${PENDING.size===1?'':'s'} to review</span><span class="dim">Open</span></button>
       </div>`;
   },
   verify(){
@@ -1181,10 +1378,12 @@ const PANELS={
     </tbody></table></div>`;
   },
   listings(){
-    return `<h2>Listings</h2><p class="sub">Hidden listings disappear from the marketplace and search straight away.</p>
-    <div class="tbl"><table class="t"><thead><tr><th>Listing</th><th>Seller</th><th>Price</th><th>Category</th><th>Status</th><th></th></tr></thead><tbody>
-    ${L.map(p=>{const st=HIDDEN.has(p.id)?'Hidden':SUSPENDED.has(p.seller)?'Seller suspended':'Live';return `<tr><td><b>${esc(p.t)}</b>${p.restricted?'<div class="dim">Restricted category</div>':''}</td><td>${esc(SELLERS[p.seller].name)}</td><td>${money(p.price)}</td><td>${esc(catOf(p.cat).name)}</td><td>${stb(st)}</td>
-      <td><div class="act"><button class="mini" data-do="${HIDDEN.has(p.id)?'lst-show':'lst-hide'}" data-id="${p.id}">${HIDDEN.has(p.id)?'Restore':'Hide'}</button><button class="mini" data-do="lst-view" data-id="${p.id}">View</button></div></td></tr>`;}).join('')}
+    const order=[...L].sort((a,b)=>(PENDING.has(b.id)?1:0)-(PENDING.has(a.id)?1:0));
+    return `<h2>Listings</h2><p class="sub">New listings wait here until you approve them. Check the photos and videos match the description.</p>
+    <div class="tbl"><table class="t"><thead><tr><th>Listing</th><th>Seller</th><th>Price</th><th>Media</th><th>Status</th><th></th></tr></thead><tbody>
+    ${order.map(p=>{const st=REJECTED.has(p.id)?'Rejected':PENDING.has(p.id)?'Pending review':HIDDEN.has(p.id)?'Hidden':SUSPENDED.has(p.seller)?'Seller suspended':'Live';const m=p.media||[],ni=m.filter(x=>x.type==='image').length,nv=m.length-ni;
+      return `<tr><td><b style="white-space:normal">${esc(p.t)}</b><div class="dim">${esc(catOf(p.cat)?.name||'')}${p.restricted?', restricted':''}</div></td><td>${esc(SELLERS[p.seller].name)}</td><td>${money(p.price)}</td><td class="dim">${m.length?`${ni} photo${ni===1?'':'s'}${nv?`, ${nv} video${nv===1?'':'s'}`:''}`:'Sample'}</td><td>${stb(st)}</td>
+      <td><div class="act">${PENDING.has(p.id)?`<button class="mini pri" data-do="lst-ok" data-id="${p.id}">Approve</button><button class="mini dan" data-do="lst-no" data-id="${p.id}">Reject</button>`:REJECTED.has(p.id)?'':`<button class="mini" data-do="${HIDDEN.has(p.id)?'lst-show':'lst-hide'}" data-id="${p.id}">${HIDDEN.has(p.id)?'Restore':'Hide'}</button>`}<button class="mini" data-do="lst-view" data-id="${p.id}">View</button></div></td></tr>`;}).join('')}
     </tbody></table></div>`;
   },
   users(){
@@ -1231,6 +1430,8 @@ function onConsoleClick(e){
     case 'dis-info':{const d=DISPUTES.find(x=>x.id===id);log('Requested dispute evidence',d.id);toast('Both parties asked for more evidence');return;}
     case 'wd-ok':{if(!confirmTwice(b,'Confirm send'))return;const w=WDR.find(x=>x.id===id);w.state='Paid';log('Approved withdrawal',`${w.id}: ${money(w.amount-FEES.withdrawal)} ${w.asset} on ${w.net}`);toast(`${w.id} sent`);break;}
     case 'wd-hold':{const w=WDR.find(x=>x.id===id);w.state='Held';log('Held withdrawal',w.id);toast(`${w.id} on hold`);break;}
+    case 'lst-ok':{const l=L.find(p=>p.id==id);PENDING.delete(+id);log('Approved listing',l.t);toast('Listing is live');renderCats();break;}
+    case 'lst-no':{if(!confirmTwice(b,'Confirm reject'))return;const l=L.find(p=>p.id==id);PENDING.delete(+id);REJECTED.add(+id);log('Rejected listing',l.t);toast('Listing rejected');break;}
     case 'lst-hide':HIDDEN.add(+id);log('Hid listing',L.find(p=>p.id==id).t);toast('Listing hidden');break;
     case 'lst-show':HIDDEN.delete(+id);log('Restored listing',L.find(p=>p.id==id).t);toast('Listing restored');break;
     case 'lst-view':openListing(+id);return;
