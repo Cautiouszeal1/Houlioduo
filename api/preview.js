@@ -1,7 +1,7 @@
 // Vercel serverless function: reads a partner store's product page and returns its photo, title and price.
 // GET /api/preview?url=<product page>  ->  { ok, title, image, price, currency, url }
 // Only allow-listed store domains are fetched. Results are cached at Vercel's edge for 10 minutes.
-const ALLOW = ['jumia.com.ng','jumia.co.ke','jumia.com.gh','jumia.com.eg','jumia.ma','konga.com','ebay.com','ebay.co.uk','ebay.de','ebay.fr','ebay.it','ebay.es','ebay.ca','ebay.com.au','bol.com','backmarket.co.uk','backmarket.com','backmarket.fr','backmarket.de','backmarket.es','backmarket.it','zalando.co.uk','zalando.de','zalando.fr','allegro.pl','aliexpress.com','aliexpress.us','temu.com','amazon.com','amazon.co.uk','amazon.de','amazon.fr','amazon.it','amazon.es','amazon.ca','amazon.ae','amazon.sa','amazon.in','amazon.com.au'];
+const ALLOW = ['jumia.com.ng','jumia.co.ke','jumia.com.gh','jumia.com.eg','jumia.ma','konga.com','ebay.com','ebay.co.uk','ebay.de','ebay.fr','ebay.it','ebay.es','ebay.ca','ebay.com.au','bol.com','backmarket.co.uk','backmarket.com','backmarket.fr','backmarket.de','backmarket.es','backmarket.it','zalando.co.uk','zalando.de','zalando.fr','allegro.pl','aliexpress.com','aliexpress.us','temu.com','amazon.com','amazon.co.uk','amazon.de','amazon.fr','amazon.it','amazon.es','amazon.ca','amazon.ae','amazon.sa','amazon.in','amazon.com.au','tcgplayer.com','cardmarket.com','pokemoncenter.com'];
 const okHost = h => { h = h.replace(/^www\./, ''); return ALLOW.some(d => h === d || h.endsWith('.' + d)); };
 const decode = s => String(s || '').replace(/&amp;/g,'&').replace(/&quot;/g,'"').replace(/&#39;/g,"'").replace(/&lt;/g,'<').replace(/&gt;/g,'>').trim();
 function meta(html, names) {
@@ -42,7 +42,10 @@ module.exports = async (req, res) => {
     clearTimeout(timer);
     const finalUrl = new URL(r.url || target.href);
     // A product that has been removed usually redirects to a category or search page.
-    const moved = finalUrl.pathname.replace(/\/$/, '') !== target.pathname.replace(/\/$/, '');
+    // Same product number in the new address (e.g. eBay /p/123 → /p/name/123) is not a removal.
+    const pid = p => (p.match(/(\d{6,})(?:\.html)?\/?$/) || [])[1];
+    const samePath = finalUrl.pathname.replace(/\/$/, '') === target.pathname.replace(/\/$/, '');
+    const moved = !samePath && !(pid(target.pathname) && pid(target.pathname) === pid(finalUrl.pathname));
     if (!r.ok) { res.setHeader('Cache-Control', 's-maxage=1800'); return res.status(200).send(JSON.stringify({ ok: false, status: r.status })); }
     const html = (await r.text()).slice(0, 1500000);
     const ld = fromJsonLd(html);

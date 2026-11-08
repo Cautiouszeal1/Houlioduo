@@ -409,7 +409,7 @@ dialog::backdrop{background:rgba(3,6,18,.72);backdrop-filter:blur(6px)}
 .ssearch{padding:22px;border:1px solid var(--line);border-radius:var(--r-lg);background:linear-gradient(165deg,rgba(17,25,51,.7),rgba(8,12,26,.7));margin-bottom:34px}
 .ssh{font-size:clamp(22px,2.4vw,30px);margin-bottom:14px;max-width:none}
 .sbox{max-width:620px}
-.sgrp{margin-top:14px}.sreg{display:block;font-size:13px;color:var(--muted);margin-bottom:8px}
+.sgrp{margin-top:14px}.sq{margin-left:8px;font-size:12px;color:#9FB4FF;border:1px solid var(--line);border-radius:999px;padding:2px 10px;background:transparent;cursor:pointer}.sq:hover{border-color:#9FB4FF}.sreg{display:block;font-size:13px;color:var(--muted);margin-bottom:8px}
 .sbtns{display:flex;flex-wrap:wrap;gap:8px}
 .sbtn{display:flex;flex-direction:column;gap:1px;padding:10px 14px;border-radius:10px;border:1px solid var(--line);background:rgba(6,10,26,.55);font-weight:600;font-size:15px;transition:border-color .2s,background .2s;min-width:118px}
 .sbtn small{font-weight:400;font-size:12px;color:var(--muted)}
@@ -774,6 +774,7 @@ table.t{width:100%;border-collapse:collapse;font-size:14.5px;min-width:640px}
     <div class="you" id="pYou"></div>
     <section class="ssearch" id="pSearch" aria-label="Search other stores"></section>
     <h2 class="ssh" style="margin-top:8px">Picks from partner stores</h2>
+    <div class="pchips" id="pCats" aria-label="Product type"></div>
     <div class="pchips" id="pRegions" aria-label="Regions"></div>
     <div class="pchips" id="pChips" aria-label="Stores"></div>
     <div class="result-bar"><span class="count" id="pCount"></span></div>
@@ -842,7 +843,8 @@ const CATS=[
   {id:'elec',name:'Electronics',subs:'Phones, laptops, tablets, gaming, cameras',icon:'laptop',tint:'t-elec'},
   {id:'fashion',name:'Fashion',subs:'Clothing, shoes, bags, watches',icon:'watch',tint:'t-fashion'},
   {id:'home',name:'Home and living',subs:'Furniture, kitchen, appliances',icon:'chair',tint:'t-home'},
-  {id:'collect',name:'Collectibles',subs:'Antiques, memorabilia, rare finds',icon:'collect',tint:'t-collect'}
+  {id:'collect',name:'Collectibles',subs:'Antiques, memorabilia, rare finds',icon:'collect',tint:'t-collect'},
+  {id:'pokemon',name:'Pokémon cards',subs:'Elite Trainer Boxes, booster boxes and bundles, games',icon:'collect',tint:'t-collect',partner:true}
 ];
 const SELLERS={
   aria:{name:'Aria Okonkwo',lvl:'verified',country:'Nigeria'},
@@ -895,13 +897,13 @@ function featuredPick(){
   const live=PITEMS.filter(i=>i.on&&LIVE[i.url]!=='gone'&&!(LIVE[i.url]==='failed'&&!i.img));
   const mix=a=>a.map((v,k)=>[rnd(v.id+k),v]).sort((a,b)=>a[0]-b[0]).map(x=>x[1]);
   const mine=mix(live.filter(i=>i.region===USER.region)), world=mix(live.filter(i=>i.region==='global')), rest=mix(live.filter(i=>i.region!==USER.region&&i.region!=='global'));
-  const out=[...mine.slice(0,5),...world.slice(0,3)]; for(const v of [...rest,...mine.slice(5),...world.slice(3)]){if(out.length>=18)break; if(!out.includes(v))out.push(v);}
+  const out=[...mine.slice(0,5),...world.slice(0,3)]; for(const v of mix(live.filter(i=>i.cat==='pokemon'&&i.region===USER.region)).concat(mix(live.filter(i=>i.cat==='pokemon')))){if(out.filter(x=>x.cat==='pokemon').length>=2)break; if(!out.includes(v))out.push(v);} for(const v of [...rest,...mine.slice(5),...world.slice(3)]){if(out.length>=18)break; if(!out.includes(v))out.push(v);}
   return out;
 }
 function renderFeatured(){try{pVisible;}catch{return;}const own=L.filter(p=>p.mine&&visible(p)&&p.media&&p.media.length);const pick=featuredPick();enrich(pick);document.getElementById('featuredStrip').innerHTML=own.map(cardHTML).join('')+pick.filter(i=>imgOf(i)).slice(0,12).map(pcardHTML).join('');}
 let lastSlot=null; setInterval(()=>{let sl;try{sl=slot();}catch{return;} if(lastSlot===null){lastSlot=sl;return;} if(sl!==lastSlot){lastSlot=sl;for(const k in LIVE)delete LIVE[k];renderPStrip();if(!document.getElementById('view-partners').hidden)renderPartners();}},30000);
 renderFeatured();
-function renderCats(){document.getElementById('catList').innerHTML=CATS.map(c=>`<button class="cat" data-cat="${c.id}"><span><span class="name">${c.name}</span><div class="subs">${c.subs}</div></span><span class="go">${L.filter(p=>p.cat===c.id).length} listings</span></button>`).join('');}
+function renderCats(){let pk=0;try{pk=pVisible().filter(i=>i.cat==='pokemon').length;}catch{} document.getElementById('catList').innerHTML=CATS.map(c=>c.partner?`<button class="cat" data-pcat="${c.id}"><span><span class="name">${c.name}</span><div class="subs">${c.subs}</div></span><span class="go">${pk?pk+' live products':'Partner stores'}</span></button>`:`<button class="cat" data-cat="${c.id}"><span><span class="name">${c.name}</span><div class="subs">${c.subs}</div></span><span class="go">${L.filter(p=>p.cat===c.id).length} listings</span></button>`).join('');}
 renderCats();
 const COLL=[
   {t:'The home game',d:'Clay chips, sealed decks and a table worth hosting on.',icon:'chip',tint:'t-poker',cat:'poker'},
@@ -949,7 +951,7 @@ function chips(el,items,set,label=x=>x){
   el.onclick=e=>{const b=e.target.closest('.chip');if(!b)return;const v=b.dataset.v;set.has(v)?set.delete(v):set.add(v);b.setAttribute('aria-pressed',set.has(v));renderGrid();};
 }
 function buildFilters(){
-  chips(document.getElementById('fCat'),CATS,F.cat,c=>c.name.replace(' and card products','').replace(' and living',''));
+  chips(document.getElementById('fCat'),CATS.filter(c=>!c.partner),F.cat,c=>c.name.replace(' and card products','').replace(' and living',''));
   chips(document.getElementById('fCond'),CONDS,F.cond);
   chips(document.getElementById('fAsset'),ASSETS,F.asset);
   const locs=[...new Set(L.map(p=>p.loc))].sort();
@@ -991,6 +993,7 @@ function goMarket(o={}){
   if(location.hash!=='#marketplace') location.hash='marketplace'; else route();
 }
 document.addEventListener('click',e=>{
+  const pk=e.target.closest('[data-pcat]'); if(pk){PK=pk.dataset.pcat;prAuto=false;PR='';PF='';if(location.hash!=='#partners')location.hash='partners';else renderPartners();window.scrollTo(0,0);return;}
   const c=e.target.closest('[data-cat]'); if(c){goMarket({cat:c.dataset.cat});return;}
   const pc=e.target.closest('[data-pclick]'); if(pc){const it=PITEMS.find(x=>x.id==pc.dataset.pclick);if(it)it.clicks++;return;}
   const k=e.target.closest('.card[data-id]'); if(k){openListing(+k.dataset.id);return;}
@@ -1394,6 +1397,14 @@ const PARTNERS=[
   // Asia-Pacific
   {id:'amazon-apac',name:'Amazon Asia-Pacific',region:'asia-pacific',reach:'amazon.in, amazon.co.jp, amazon.com.au',pay:'Varies by country',join:'https://affiliate-program.amazon.com.au',domains:['amazon.in','amazon.co.jp','amazon.com.au','amazon.sg','amzn.to'],steps:AMZ_STEPS('Australia, India or Japan')},
   {id:'ebay-au',name:'eBay Australia',region:'asia-pacific',reach:'ebay.com.au',pay:'PayPal or direct deposit',join:'https://partnernetwork.ebay.com',domains:['ebay.com.au','rover.ebay.com'],steps:EBAY_STEPS('Australia')},
+  // Pokémon card specialists
+  {id:'tcgplayer',name:'TCGplayer',region:'north-america',spec:'pokemon',reach:'Pokémon cards and sealed products from thousands of US shops',pay:'Through Impact: bank transfer or PayPal, from $50',join:'https://docs.tcgplayer.com/docs/tcgplayer-affiliate-program',domains:['tcgplayer.com','tcgplayer.pxf.io','partner.tcgplayer.com'],
+   steps:['Open TCGplayer’s affiliate page and follow the link to apply on Impact.','Create an Impact publisher account and add houlioduo.com as your website.','Apply to the TCGplayer program and wait for approval.','In Impact, create links to TCGplayer products or searches.','Paste your partner code here under TCGplayer.'],
+   warn:'Commission is about 3.5% of each sale. Many TCGplayer sellers ship only inside the US.'},
+  {id:'cardmarket',name:'Cardmarket',region:'europe',spec:'pokemon',reach:'Europe’s largest trading card marketplace, sellers in about 30 countries',pay:'No public affiliate program',join:'https://www.cardmarket.com/en/Pokemon',domains:['cardmarket.com'],
+   steps:['Cardmarket has no public affiliate program, so links here earn no commission for now.','Buyers need a free Cardmarket account to order; sellers ship from across Europe.','For a partnership, contact Cardmarket through the support page on cardmarket.com.']},
+  {id:'pokemon-center',name:'Pokémon Center',region:'north-america',spec:'pokemon',reach:'Official store: US, Canada, UK, Germany and more',pay:'No affiliate program',join:'https://www.pokemoncenter.com',domains:['pokemoncenter.com'],
+   steps:['Pokémon Center is the official store of The Pokémon Company. It has no affiliate program, so links here earn no commission.','Buyers order on the store site for their country (US, Canada, UK, Germany and others).']},
   // Worldwide
   {id:'aliexpress',name:'AliExpress',region:'global',reach:'Ships to most countries',pay:'Bank transfer or PayPal, depending on your region',join:'https://portals.aliexpress.com',domains:['aliexpress.com','aliexpress.us','s.click.aliexpress.com','a.aliexpress.com'],
    steps:['Open portals.aliexpress.com and sign in with an AliExpress account.','Add houlioduo.com as your website.','Set your payout method in account settings.','Use the link generator on any product page. Some stores pay no commission; check with the Portals link checker.','Paste the link here under AliExpress.']},
@@ -1463,7 +1474,26 @@ const PITEMS=[
   {"id": 56, "partner": "aliexpress", "region": "global", "cat": "home", "t": "Moes smart Bluetooth water timer", "url": "https://www.aliexpress.com/item/1005002940631849.html", "img": "https://ae-pic-a1.aliexpress-media.com/kf/Sbf066dee6feb45c28230d1b8bb0b5f80X.jpg"},
   {"id": 57, "partner": "aliexpress", "region": "global", "cat": "fashion", "t": "SMAEL dual-display sports watch", "url": "https://www.aliexpress.com/item/32779408249.html"},
   {"id": 58, "partner": "aliexpress", "region": "global", "cat": "fashion", "t": "SMAEL military watch, 50m waterproof", "url": "https://www.aliexpress.com/item/32881453818.html"},
-  {"id": 59, "partner": "aliexpress", "region": "global", "cat": "fashion", "t": "SMAEL chronograph sports watch", "url": "https://www.aliexpress.com/item/32965194084.html"}
+  {"id": 59, "partner": "aliexpress", "region": "global", "cat": "fashion", "t": "SMAEL chronograph sports watch", "url": "https://www.aliexpress.com/item/32965194084.html"},
+  // Pokémon cards: eBay catalogue pages stay up and list every current seller of that product
+  {"id": 60, "partner": "ebay-eu", "region": "europe", "cat": "pokemon", "t": "Pokémon TCG Scarlet & Violet 151 Pokémon Center Elite Trainer Box", "url": "https://www.ebay.co.uk/p/24062146268", "img": "https://i.ebayimg.com/images/g/AwAAAeSw~C5qwnQM/s-l500.png"},
+  {"id": 61, "partner": "ebay-eu", "region": "europe", "cat": "pokemon", "t": "Pokémon TCG Scarlet & Violet 151 Elite Trainer Box", "url": "https://www.ebay.co.uk/p/4061229212", "img": "https://i.ebayimg.com/images/g/JeUAAOSwiFxlaZZS/s-l960.jpg"},
+  {"id": 62, "partner": "ebay-eu", "region": "europe", "cat": "pokemon", "t": "Pokémon TCG 151 Booster Bundle, 6 packs", "url": "https://www.ebay.co.uk/p/24062110919", "img": "https://i.ebayimg.com/images/g/s30AAOSwjvhk3xv3/s-l1600.png"},
+  {"id": 63, "partner": "ebay-eu", "region": "europe", "cat": "pokemon", "t": "Pokémon TCG Hidden Fates Elite Trainer Box", "url": "https://www.ebay.co.uk/p/8034416405", "img": "https://i.ebayimg.com/images/g/W0oAAOSwCQxhwYRj/s-l640.jpg"},
+  {"id": 64, "partner": "ebay-eu", "region": "europe", "cat": "pokemon", "t": "Pokémon Sword & Shield Evolving Skies Elite Trainer Box", "url": "https://www.ebay.co.uk/p/6049143070", "img": "https://i.ebayimg.com/images/g/Nh8AAOSwcalhgjjt/s-l640.jpg"},
+  {"id": 65, "partner": "ebay-eu", "region": "europe", "cat": "pokemon", "t": "Pokémon TCG Vivid Voltage Elite Trainer Box", "url": "https://www.ebay.co.uk/p/4042447348", "img": "https://i.ebayimg.com/images/g/wOEAAOSw~CJgD~Eu/s-l640.png"},
+  {"id": 66, "partner": "ebay-eu", "region": "europe", "cat": "pokemon", "t": "Pokémon Generations Elite Trainer Box, 20th Anniversary", "url": "https://www.ebay.co.uk/p/691186417", "img": "https://i.ebayimg.com/images/g/rdUAAOSwPR1f~Jeh/s-l640.jpg"},
+  {"id": 67, "partner": "ebay-us", "region": "north-america", "cat": "pokemon", "t": "Pokémon TCG Scarlet & Violet 151 Elite Trainer Box", "url": "https://www.ebay.com/p/4061229212", "img": "https://i.ebayimg.com/images/g/JeUAAOSwiFxlaZZS/s-l960.jpg"},
+  {"id": 68, "partner": "ebay-us", "region": "north-america", "cat": "pokemon", "t": "Pokémon TCG Paradox Rift Elite Trainer Box", "url": "https://www.ebay.com/p/19064079434", "img": "https://i.ebayimg.com/images/g/UmMAAOSwv7plqSqE/s-l960.jpg"},
+  {"id": 69, "partner": "ebay-us", "region": "north-america", "cat": "pokemon", "t": "Pokémon TCG Pokémon GO Elite Trainer Box", "url": "https://www.ebay.com/p/18055319672", "img": "https://i.ebayimg.com/images/g/5tkAAOSwfpZjh08L/s-l640.png"},
+  {"id": 70, "partner": "ebay-us", "region": "north-america", "cat": "pokemon", "t": "Pokémon TCG Hidden Fates Elite Trainer Box", "url": "https://www.ebay.ca/p/8034416405", "img": "https://i.ebayimg.com/images/g/W0oAAOSwCQxhwYRj/s-l640.jpg"},
+  {"id": 71, "partner": "ebay-au", "region": "asia-pacific", "cat": "pokemon", "t": "Pokémon TCG Scarlet & Violet Elite Trainer Box, 9 packs", "url": "https://www.ebay.com.au/p/4059884296", "img": "https://i.ebayimg.com/images/g/jRMAAOSwB4lkz0-7/s-l1600.jpg"},
+  {"id": 72, "partner": "ebay-au", "region": "asia-pacific", "cat": "pokemon", "t": "Pokémon TCG Hidden Fates Elite Trainer Box", "url": "https://www.ebay.com.au/p/17051504539", "img": "https://i.ebayimg.com/images/g/vaIAAOSwqidiChH1/s-l640.jpg"},
+  {"id": 73, "partner": "ebay-au", "region": "asia-pacific", "cat": "pokemon", "t": "Pokémon TCG Paradox Rift Elite Trainer Box", "url": "https://www.ebay.com.au/p/19064079434", "img": "https://i.ebayimg.com/images/g/UmMAAOSwv7plqSqE/s-l960.jpg"},
+  {"id": 74, "partner": "ebay-au", "region": "asia-pacific", "cat": "pokemon", "t": "Pokémon TCG Pokémon GO Elite Trainer Box", "url": "https://www.ebay.com.au/p/18055319672", "img": "https://i.ebayimg.com/images/g/5tkAAOSwfpZjh08L/s-l640.png"},
+  {"id": 75, "partner": "ebay-au", "region": "asia-pacific", "cat": "pokemon", "t": "Pokémon Scarlet & Violet 151 Elite Trainer Box", "url": "https://www.ebay.com.au/p/16061219025", "img": "https://i.ebayimg.com/images/g/IxMAAOSwqhVlSfD1/s-l1200.jpg"},
+  {"id": 76, "partner": "ebay-au", "region": "asia-pacific", "cat": "pokemon", "t": "Pokémon Sword & Shield Battle Styles Elite Trainer Box", "url": "https://www.ebay.com.au/p/8044011468", "img": "https://i.ebayimg.com/images/g/x-kAAOSwJ5lheDsn/s-l640.jpg"},
+  {"id": 77, "partner": "jumia", "region": "africa", "cat": "pokemon", "t": "Pokémon Legends: Arceus, Nintendo Switch", "url": "https://www.jumia.co.ke/nintendo-switch-pokemon-legends-arceus-327565730.html", "img": "https://ke.jumia.is/unsafe/fit-in/680x680/filters:fill(white)/product/03/7565723/1.jpg"}
 ].map(i=>({...i,clicks:0,on:true}));
 const LIVE={}; // url -> {ok,title,image,price,currency} | 'pending' | 'failed'
 const WINDOW_MS=10*60*1000; const slot=()=>Math.floor(Date.now()/WINDOW_MS);
@@ -1542,14 +1572,20 @@ const SEARCH={
   'amazon-apac':{label:'Amazon',url:q=>{const d=pick({JP:'amazon.co.jp',AU:'amazon.com.au',SG:'amazon.sg',NZ:'amazon.com.au'},'amazon.in');return q?`https://www.${d}/s?k=${enc(q)}`:`https://www.${d}/`;}},
   'ebay-au':{label:'eBay',url:q=>q?`https://www.ebay.com.au/sch/i.html?_nkw=${enc(q)}`:'https://www.ebay.com.au/'},
   aliexpress:{label:'AliExpress',url:q=>q?`https://www.aliexpress.com/wholesale?SearchText=${enc(q)}`:'https://www.aliexpress.com/'},
-  temu:{label:'Temu',url:q=>q?`https://www.temu.com/search_result.html?search_key=${enc(q)}`:'https://www.temu.com/'}
+  temu:{label:'Temu',url:q=>q?`https://www.temu.com/search_result.html?search_key=${enc(q)}`:'https://www.temu.com/'},
+  tcgplayer:{label:'TCGplayer',url:q=>`https://www.tcgplayer.com/search/pokemon/product?productLineName=pokemon&q=${enc(q||'')}`},
+  cardmarket:{label:'Cardmarket',url:q=>{const l=pick({DE:'de',AT:'de',CH:'de',FR:'fr',BE:'fr',IT:'it',ES:'es'},'en');return q?`https://www.cardmarket.com/${l}/Pokemon/Products/Search?searchString=${enc(q)}`:`https://www.cardmarket.com/${l}/Pokemon`;}},
+  'pokemon-center':{label:'Pokémon Center',url:q=>{const l=pick({GB:'en-gb',IE:'en-gb',DE:'de-de',AT:'de-de',CA:'en-ca'},'');const b='https://www.pokemoncenter.com'+(l?'/'+l:'');return q?`${b}/search/${enc(q)}`:b;}}
 };
 // When you later join a program, its saved affiliate ID is added to these links automatically (Amazon "tag" for now).
 function withAff(id,url){const pt=pOf(id); if(pt&&pt.tag&&/^amazon/.test(id))return url+(url.includes('?')?'&':'?')+'tag='+enc(pt.tag); return url;}
 let PSQ='';
 function storeSearchHTML(){
   const order=[USER.region,...REGIONS.map(r=>r[0]).filter(r=>r!==USER.region&&r!=='global'),'global'].filter(Boolean);
-  const groups=[...new Set(order)].map(r=>{const ids=PARTNERS.filter(p=>p.region===r&&SEARCH[p.id]).map(p=>p.id);return ids.length?`<div class="sgrp"><span class="sreg">${esc(regName(r))}${r===USER.region?' (you)':''}</span><div class="sbtns">${ids.map(id=>`<a class="sbtn" data-sid="${id}" target="_blank" rel="noopener noreferrer" href="${esc(withAff(id,SEARCH[id].url(PSQ)))}">${esc(SEARCH[id].label)}<small>${esc(new URL(SEARCH[id].url('')).hostname.replace(/^www\./,''))}</small></a>`).join('')}</div></div>`:'';}).join('');
+  const btn=id=>`<a class="sbtn" data-sid="${id}" target="_blank" rel="noopener noreferrer" href="${esc(withAff(id,SEARCH[id].url(PSQ)))}">${esc(SEARCH[id].label)}<small>${esc(new URL(SEARCH[id].url('')).hostname.replace(/^www\./,''))}</small></a>`;
+  const pk=PARTNERS.filter(p=>p.spec==='pokemon').sort((a,b)=>(b.region===USER.region)-(a.region===USER.region)).map(p=>p.id);
+  const pkg=`<div class="sgrp"><span class="sreg">Pokémon card stores <button type="button" class="sq" data-psq="Pokemon cards">Search “Pokémon cards”</button></span><div class="sbtns">${pk.map(btn).join('')}</div></div>`;
+  const groups=pkg+[...new Set(order)].map(r=>{const ids=PARTNERS.filter(p=>p.region===r&&!p.spec&&SEARCH[p.id]).map(p=>p.id);return ids.length?`<div class="sgrp"><span class="sreg">${esc(regName(r))}${r===USER.region?' (you)':''}</span><div class="sbtns">${ids.map(id=>`<a class="sbtn" data-sid="${id}" target="_blank" rel="noopener noreferrer" href="${esc(withAff(id,SEARCH[id].url(PSQ)))}">${esc(SEARCH[id].label)}<small>${esc(new URL(SEARCH[id].url('')).hostname.replace(/^www\./,''))}</small></a>`).join('')}</div></div>`:'';}).join('');
   return `<h2 class="ssh">Search other stores</h2>
     <div class="search-box sbox"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="#8A94B5" stroke-width="1.7" aria-hidden="true"><circle cx="9" cy="9" r="6.5"/><path d="M14 14l4 4"/></svg><input id="psq" type="search" placeholder="What are you looking for? e.g. iPhone 13" value="${esc(PSQ)}" aria-label="Search other stores" autocomplete="off"></div>
     <p class="formnote" style="margin:10px 0 18px">Type, then tap a store. Its results open on the store’s own site with photos, prices and delivery to your country.</p>
@@ -1565,7 +1601,7 @@ function youHTML(){
   const note=USER.region?(has?(USER.region==='global'?'Showing stores that ship worldwide first.':`Showing stores for ${esc(regName(USER.region))} first.`):`No partner stores for ${esc(regName(USER.region))} yet. Worldwide stores may still deliver to you.`):'Choose your country to see stores that deliver to you.';
   return `${pin}<span>You’re in ${where}. ${note}</span><label class="sr" for="youSel">Change country</label><select id="youSel"><option value="">Change country</option>${ALLC.map(([c,n])=>`<option value="${c}">${esc(n)}</option>`).join('')}</select>`;
 }
-let PR='', PF='';
+let PR='', PF='', PK='';
 function pcardHTML(it){
   const pt=pOf(it.partner), lv=liveOf(it), img=imgOf(it), title=(lv&&lv.title)||it.t;
   const pl=priceLabel(it,lv), pr=pl?pl.text:'';
@@ -1581,9 +1617,13 @@ function pcardHTML(it){
 const pVisible=()=>PITEMS.filter(i=>i.on&&LIVE[i.url]!=='gone'&&imgOf(i)).sort((a,b)=>(b.region===USER.region)-(a.region===USER.region)||(b.region==='global')-(a.region==='global'));
 function renderPartners(){
   enrich(PITEMS.filter(i=>i.on));
-  const items=pVisible();
+  const all=pVisible(), items=PK?all.filter(i=>i.cat===PK):all;
   if(prAuto&&PR===''&&USER.region&&items.some(i=>i.region===USER.region))PR=USER.region;
   const ss=document.getElementById('pSearch'); if(!ss.dataset.cc||ss.dataset.cc!==USER.country+'|'+USER.region){ss.innerHTML=storeSearchHTML();ss.dataset.cc=USER.country+'|'+USER.region;const iq=document.getElementById('psq');iq.oninput=()=>{PSQ=iq.value.trim();refreshStoreLinks();};}
+  ss.querySelectorAll('[data-psq]').forEach(b=>b.onclick=()=>{const iq=document.getElementById('psq');iq.value=b.dataset.psq;PSQ=b.dataset.psq;refreshStoreLinks();iq.focus();});
+  const npk=all.filter(i=>i.cat==='pokemon').length;
+  document.getElementById('pCats').innerHTML=npk?`<button class="chip" aria-pressed="${PK===''}" data-pk="">All products <span class="cnt">${all.length}</span></button><button class="chip" aria-pressed="${PK==='pokemon'}" data-pk="pokemon">Pokémon cards <span class="cnt">${npk}</span></button>`:'';
+  document.getElementById('pCats').onclick=e=>{const b=e.target.closest('[data-pk]');if(b){PK=b.dataset.pk;PF='';if(PK){prAuto=false;PR='';}renderPartners();}};
   const yo=document.getElementById('pYou'); yo.innerHTML=youHTML(); document.getElementById('youSel').onchange=e=>{const c=e.target.value;if(!c)return;setCountry(c,'saved');try{localStorage.setItem('hd-country',c);}catch{}prAuto=true;document.getElementById('pSearch').dataset.cc='';PR='';PF='';renderPStrip();renderPartners();toast(`Location set to ${cName(c)}`);};
   const counts=Object.fromEntries(REGIONS.map(([r])=>[r,items.filter(i=>i.region===r).length]));
   document.getElementById('pRegions').innerHTML=`<button class="chip" aria-pressed="${PR===''}" data-pr="">All regions</button>`+REGIONS.filter(([r])=>counts[r]).map(([r,n])=>`<button class="chip" aria-pressed="${PR===r}" data-pr="${r}">${n}${r===USER.region?' (you)':''} <span class="cnt">${counts[r]}</span></button>`).join('');
@@ -1594,13 +1634,14 @@ function renderPartners(){
   document.getElementById('pRegions').onclick=e=>{const b=e.target.closest('[data-pr]');if(b){prAuto=false;PR=b.dataset.pr;PF='';renderPartners();}};
   document.getElementById('pChips').onclick=e=>{const b=e.target.closest('[data-pf]');if(b){PF=b.dataset.pf;renderPartners();}};
   const list=inReg.filter(i=>!PF||i.partner===PF);
-  document.getElementById('pCount').textContent=`${list.length} product${list.length===1?'':'s'}${PR?` in ${regName(PR)}`:''}`;
+  document.getElementById('pCount').textContent=`${list.length}${PK?' Pokémon':''} product${list.length===1?'':'s'}${PR?` in ${regName(PR)}`:''}`;
   let html='';
   if(!PR&&!PF){ for(const [r,n] of REGIONS){const g=list.filter(i=>i.region===r); if(g.length) html+=`<h3 class="rhead">${n}${r==='global'?' <span>ships to most countries</span>':''}</h3>`+g.map(pcardHTML).join('');} }
   else html=list.map(pcardHTML).join('');
   document.getElementById('pGrid').innerHTML=list.length?html:`<div class="no-results"><h3>No partner products here yet</h3><p>Try another region.</p></div>`;
 }
 function renderPStrip(){
+  try{renderCats();}catch{}
   const sub=document.getElementById('featSub'); if(sub)sub.textContent=USER.country?`Live products from stores around the world, starting with ${cName(USER.country)}. Tap one to buy it on the store’s site.`:'Live products from stores around the world. Tap one to buy it on the store’s site.';
   renderFeatured();
 }
@@ -1654,7 +1695,7 @@ PANELS_EXTRA={
     <p class="formnote" style="margin-top:14px">Every product needs a photo before buyers see it. Products whose page has been removed hide automatically. Commission is earned and paid by each partner in its own currency. Check sales and payouts in their dashboards; clicks here count only taps on this site.</p>`;
   }
 };
-const PDEF={jumia:'NGN',konga:'NGN','amazon-eu':'EUR','ebay-eu':'GBP',zalando:'EUR',bol:'EUR',backmarket:'EUR',allegro:'PLN','amazon-us':'USD','ebay-us':'USD','amazon-me':'AED','amazon-apac':'AUD','ebay-au':'AUD',aliexpress:'USD',temu:'USD',awin:'EUR'};
+const PDEF={jumia:'NGN',konga:'NGN','amazon-eu':'EUR','ebay-eu':'GBP',zalando:'EUR',bol:'EUR',backmarket:'EUR',allegro:'PLN','amazon-us':'USD','ebay-us':'USD','amazon-me':'AED','amazon-apac':'AUD','ebay-au':'AUD',aliexpress:'USD',temu:'USD',awin:'EUR',tcgplayer:'USD',cardmarket:'EUR','pokemon-center':'USD'};
 
 /* ============ owner console ============ */
 const HELD=['Payment confirmed','Funds secured','Seller notified','Order processing','Shipped or delivered','Awaiting buyer confirmation','Refund requested','Disputed','Under review'];
