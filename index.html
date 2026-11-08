@@ -391,6 +391,26 @@ dialog::backdrop{background:rgba(3,6,18,.72);backdrop-filter:blur(6px)}
 .rev .facts{font-size:14px}
 @media (max-width:560px){.media-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.rev{grid-template-columns:minmax(0,1fr)}.rev .card{max-width:240px}}
 
+/* ---------- partner stores ---------- */
+.mtabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:26px;overflow-x:auto}
+.mtabs a{padding:12px 16px;font-size:15px;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap}
+.mtabs a[aria-current="true"]{color:var(--white);border-color:var(--white)}
+.disclose{display:flex;gap:14px;align-items:flex-start;padding:16px 18px;border:1px solid var(--line);border-radius:var(--r-md);background:rgba(14,20,42,.6);font-size:14.5px;color:#C3CAE0;margin-bottom:24px}
+.disclose svg{flex:none;margin-top:2px}
+.pchips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:22px}
+.pcard{display:flex;flex-direction:column;gap:12px}
+.pcard .thumb .who{position:absolute;left:16px;top:16px;z-index:2;font-size:12px;font-weight:500;padding:4px 8px;border-radius:6px;background:rgba(237,240,247,.09);color:#DDE2EE}
+.pcard .thumb .ptag{position:absolute;right:16px;top:16px;z-index:2;font-size:12px;color:var(--warn)}
+.pcard .buy{margin-top:auto;width:100%}
+.pcard .fine{font-size:12.5px;color:var(--muted)}
+@media (max-width:560px){.pcard .thumb .who{left:12px;top:12px}.pcard .thumb .ptag{right:12px;top:12px}}
+.guide ol{padding-left:20px;display:flex;flex-direction:column;gap:10px;color:#C3CAE0;font-size:15px;margin:16px 0}
+.guide .warnbox{font-size:14px;color:#E9DCC4;padding:12px 14px;border-radius:10px;background:rgba(255,194,102,.07);border:1px solid rgba(255,194,102,.25);margin-top:6px}
+.prog-id{height:34px;padding:0 10px;border-radius:8px;background:rgba(6,10,26,.6);border:1px solid var(--line);outline:none;width:160px;font-size:13.5px}
+.addp{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0 12px;padding:20px;border:1px solid var(--line);border-radius:var(--r-md);margin-bottom:22px}
+.addp .full{grid-column:1/-1}
+@media (max-width:700px){.addp{grid-template-columns:minmax(0,1fr)}}
+
 /* ---------- owner console ---------- */
 .console{padding:92px 0 60px;background:var(--midnight);min-height:100vh}
 .con-top{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:26px}
@@ -461,6 +481,7 @@ table.t{width:100%;border-collapse:collapse;font-size:14.5px;min-width:640px}
     </a>
     <nav class="nav-links" aria-label="Main">
       <a href="#marketplace">Marketplace</a>
+      <a href="#partners">Partner stores</a>
       <a href="#stores">Verified stores</a>
       <a href="#escrow">Escrow</a>
       <a href="#sell">Sell</a>
@@ -478,6 +499,7 @@ table.t{width:100%;border-collapse:collapse;font-size:14.5px;min-width:640px}
 <div class="sheet" id="sheet" role="dialog" aria-label="Menu">
   <button class="close" id="sheetClose" aria-label="Close menu"><svg width="16" height="16" viewBox="0 0 16 16" stroke="currentColor" stroke-width="1.6" style="margin:auto"><path d="M3 3l10 10M13 3L3 13"/></svg></button>
   <a href="#marketplace">Marketplace</a>
+  <a href="#partners">Partner stores</a>
   <a href="#stores">Verified stores</a>
   <a href="#escrow">Escrow</a>
   <a href="#assets">Payments</a>
@@ -649,6 +671,13 @@ table.t{width:100%;border-collapse:collapse;font-size:14.5px;min-width:640px}
     </div>
   </section>
 
+  <section class="block solid" id="partner-picks">
+    <div class="wrap">
+      <div class="sec-head"><div><h2>Also from partner stores</h2><p class="sub" style="margin-top:14px">Picks from marketplaces we work with. You buy on their site; Houlio Duo escrow doesn’t apply.</p></div><a class="link" href="#partners">See partner stores</a></div>
+      <div class="strip" id="pStrip"></div>
+    </div>
+  </section>
+
   <section class="block solid" id="collections">
     <div class="wrap">
       <div class="sec-head"><h2>Collections</h2></div>
@@ -698,6 +727,7 @@ table.t{width:100%;border-collapse:collapse;font-size:14.5px;min-width:640px}
       <div style="display:flex;align-items:end;gap:18px;flex-wrap:wrap"><h1>Marketplace</h1><button class="btn btn-primary btn-sm" data-list="1">List an item</button></div>
       <span class="notice">Sample listings for design review</span>
     </div>
+    <nav class="mtabs" aria-label="Marketplace sections"><a href="#marketplace" aria-current="true">Houlio sellers, with escrow</a><a href="#partners" aria-current="false">Partner stores</a></nav>
     <div class="market-body">
       <aside class="filters" id="filters" aria-label="Filters">
         <div class="fgroup"><h4>Search</h4><div class="range"><input id="mq" type="search" placeholder="Products, stores, sellers"></div></div>
@@ -720,6 +750,19 @@ table.t{width:100%;border-collapse:collapse;font-size:14.5px;min-width:640px}
         <div class="grid" id="grid"></div>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- ================= PARTNER STORES ================= -->
+<div class="view market" id="view-partners" hidden>
+  <div class="wrap">
+    <div class="market-top"><h1>Marketplace</h1></div>
+    <nav class="mtabs" aria-label="Marketplace sections"><a href="#marketplace" aria-current="false">Houlio sellers, with escrow</a><a href="#partners" aria-current="true">Partner stores</a></nav>
+    <div class="disclose"><svg width="20" height="20" viewBox="0 0 22 22" fill="none" stroke="#FFC266" stroke-width="1.7"><circle cx="11" cy="11" r="9"/><path d="M11 10v5M11 7v.5"/></svg>
+      <div>These items are sold and shipped by other marketplaces. You pay on their site, in their currency, under their buyer protection. Houlio Duo escrow and disputes don’t cover them. We may earn a commission when you buy through these links, at no extra cost to you.</div></div>
+    <div class="pchips" id="pChips"></div>
+    <div class="result-bar"><span class="count" id="pCount"></span><span class="notice">Sample partner products for design review</span></div>
+    <div class="grid" id="pGrid"></div>
   </div>
 </div>
 
@@ -923,26 +966,29 @@ function goMarket(o={}){
 }
 document.addEventListener('click',e=>{
   const c=e.target.closest('[data-cat]'); if(c){goMarket({cat:c.dataset.cat});return;}
-  const k=e.target.closest('.card'); if(k){openListing(+k.dataset.id);return;}
+  const pc=e.target.closest('[data-pclick]'); if(pc){const it=PITEMS.find(x=>x.id==pc.dataset.pclick);if(it)it.clicks++;return;}
+  const k=e.target.closest('.card[data-id]'); if(k){openListing(+k.dataset.id);return;}
   const s=e.target.closest('[data-soon]'); if(s){e.preventDefault();soon(s.dataset.soon);return;}
   const li=e.target.closest('[data-list]'); if(li){e.preventDefault();document.getElementById('sheet').classList.remove('open');openListWizard();return;}
   const a=e.target.closest('[data-auth]'); if(a){e.preventDefault();document.getElementById('sheet').classList.remove('open');a.dataset.auth==='signin'?openSignin():openRegister(a.dataset.auth);}
 });
 
 /* ============ routing ============ */
-const homeSections=['top','featured','categories','stores','how','escrow','assets','collections','reviews','sell'];
+const homeSections=['top','partner-picks','featured','categories','stores','how','escrow','assets','collections','reviews','sell'];
 function route(){
   const h=location.hash.slice(1);
-  const market=h==='marketplace', con=h==='hd-console';
-  document.getElementById('view-home').hidden=market||con;
+  const market=h==='marketplace', con=h==='hd-console', part=h==='partners';
+  document.getElementById('view-home').hidden=market||con||part;
+  document.getElementById('view-partners').hidden=!part;
   document.getElementById('view-market').hidden=!market;
   document.getElementById('view-console').hidden=!con;
   document.querySelector('footer').hidden=con;
-  document.getElementById('stage').style.visibility=(market||con)?'hidden':'visible';
+  document.getElementById('stage').style.visibility=(market||con||part)?'hidden':'visible';
   document.querySelectorAll('.nav-links a').forEach(a=>a.toggleAttribute('aria-current',a.getAttribute('href')==='#'+h));
   document.getElementById('sheet').classList.remove('open');
   if(con){renderConsole();window.scrollTo(0,0);}
   else if(market){buildFilters();renderGrid();window.scrollTo(0,0);}
+  else if(part){renderPartners();window.scrollTo(0,0);}
   else if(h&&homeSections.includes(h)){requestAnimationFrame(()=>document.getElementById(h).scrollIntoView());}
   else if(!h) window.scrollTo(0,0);
 }
@@ -1284,6 +1330,109 @@ function lwSubmit(){
   log('New listing submitted',`${dr.t} (${dr.media.length} media)`,'System');
 }
 
+let PANELS_EXTRA={};
+/* ============ partner stores (affiliate) ============ */
+const PARTNERS=[
+  {id:'jumia',name:'Jumia',reach:'Nigeria and 10 other African countries',pay:'Bank transfer to a Nigerian account',join:'https://kol.jumia.com/register',domains:['jumia.com.ng','jumia.com','jumia.co.ke','jumia.com.gh','jumia.com.eg','jumia.ma','jumia.ci','jumia.sn','jumia.ug','jumia.com.tn','jumia.dz','c.jumia.io','kol.jumia.com'],
+   steps:['Open kol.jumia.com/register and choose the website option.','Enter your name, email and phone, and add houlioduo.com as your website.','Add your Nigerian bank account for payouts.','In the dashboard, paste any Jumia product page into the link builder to get your affiliate link.','Come back here, paste the link into “Add a partner product” and pick Jumia.'],
+   warn:'One source reported the program was paused in late 2024 and later relaunched. If the sign-up page is closed, check jumia.com.ng footer for the current affiliate link.'},
+  {id:'konga',name:'Konga',reach:'Nigeria',pay:'Bank transfer to a Nigerian account',join:'https://affiliate.konga.com',domains:['konga.com','affiliate.konga.com'],
+   steps:['Open affiliate.konga.com and click “Get started”.','Fill in the form with your details and website.','Konga emails your login. Sign in to the affiliate dashboard.','Create a link for any Konga product page.','Paste it here under Konga.']},
+  {id:'aliexpress',name:'AliExpress',reach:'Worldwide',pay:'Bank transfer or PayPal, depending on your region',join:'https://portals.aliexpress.com',domains:['aliexpress.com','aliexpress.us','s.click.aliexpress.com','a.aliexpress.com'],
+   steps:['Open portals.aliexpress.com and sign in with an AliExpress account (create one if needed).','Add houlioduo.com as your website and describe it as a marketplace.','Set your payout method in account settings.','Use the link generator on any product page. Some stores pay no commission; check with the Portals link checker.','Paste the link here under AliExpress.']},
+  {id:'temu',name:'Temu',reach:'80+ countries',pay:'Shown in your Temu affiliate account',join:'https://www.temu.com',domains:['temu.com','temu.to'],
+   steps:['On temu.com, open the Affiliate program page from the footer (or search “Temu affiliate program”).','Choose the Affiliate program and sign up as a business or website.','Copy your referral link or code from the account centre.','Commissions mainly come from new Temu customers, and rates depend on country.','Paste product or referral links here under Temu.']},
+  {id:'amazon',name:'Amazon',reach:'Separate programs for the US, UK, EU, Canada and more',pay:'Direct deposit (US account, e.g. Payoneer), cheque or gift card',join:'https://affiliate-program.amazon.com',domains:['amazon.com','amazon.co.uk','amazon.de','amazon.fr','amazon.it','amazon.es','amazon.ca','amazon.ae','amazon.sa','amazon.in','amazon.com.au','amzn.to'],
+   steps:['Open the Associates site for the country you want to sell into, e.g. affiliate-program.amazon.com for the US.','Sign in with an Amazon account and enter houlioduo.com as your website.','Complete the tax interview. Non-US members file a W-8BEN.','Choose payment: a US bank account through Payoneer is the usual route outside the US.','Use SiteStripe on any product page to copy your link, then paste it here. Repeat sign-up for each Amazon country.'],
+   warn:'Some 2026 guides list Amazon Associates as closed to Nigerian residents. If you’re refused, use an entity in an eligible country or skip Amazon.'},
+  {id:'ebay',name:'eBay',reach:'Major eBay sites worldwide',pay:'PayPal or direct deposit (11 countries)',join:'https://partnernetwork.ebay.com',domains:['ebay.com','ebay.co.uk','ebay.de','ebay.fr','ebay.it','ebay.es','ebay.ca','ebay.com.au','ebay.us','rover.ebay.com'],
+   steps:['Open partnernetwork.ebay.com and click “Sign up”.','Sign in with your eBay account or create one.','Fill in your details, company and how you promote, then submit.','Wait for the “Application received” email and approval.','Build links in the EPN dashboard and paste them here under eBay.'],
+   warn:'Some affiliates report accounts closed later because their country wasn’t supported. Confirm Nigeria (or your company’s country) is supported before you invest time.'},
+  {id:'awin',name:'Awin network',reach:'Thousands of brands across 180+ countries',pay:'Bank transfer or Payoneer, paid on the 1st and 15th',join:'https://ui.awin.com/publisher-signup',domains:['awin1.com','awin.com'],
+   steps:['Open ui.awin.com/publisher-signup and follow the wizard.','Choose your main region and promotion type (website).','Pay the small refundable deposit (returned with your first payout).','Apply to individual brands in the Advertiser Directory. Each brand approves you separately.','Copy deep links for approved brands and paste them here under Awin.']}
+];
+PARTNERS.forEach(p=>{p.tag='';p.on=false;});
+const PITEMS=[
+  {id:1,partner:'jumia',t:'Samsung Galaxy A15, 128 GB',price:185000,cur:'NGN',cat:'elec',url:'https://www.jumia.com.ng/',clicks:0,on:true,sample:true},
+  {id:2,partner:'aliexpress',t:'Ceramic poker chip set, 300 pieces',price:64,cur:'USD',cat:'poker',url:'https://www.aliexpress.com/',clicks:0,on:true,sample:true},
+  {id:3,partner:'amazon',t:'Mechanical keyboard, 75% layout',price:89,cur:'USD',cat:'elec',url:'https://www.amazon.com/',clicks:0,on:true,sample:true},
+  {id:4,partner:'konga',t:'Leather laptop bag, 15-inch',price:42000,cur:'NGN',cat:'fashion',url:'https://www.konga.com/',clicks:0,on:true,sample:true},
+  {id:5,partner:'temu',t:'Desk organiser set, 6 pieces',price:19,cur:'USD',cat:'home',url:'https://www.temu.com/',clicks:0,on:true,sample:true},
+  {id:6,partner:'ebay',t:'Vintage film camera, tested',price:120,cur:'USD',cat:'collect',url:'https://www.ebay.com/',clicks:0,on:true,sample:true}
+];
+const pOf=id=>PARTNERS.find(p=>p.id===id);
+const pmoney=(n,c)=>{try{return new Intl.NumberFormat('en',{style:'currency',currency:c,maximumFractionDigits:c==='NGN'?0:2}).format(n);}catch{return c+' '+n;}};
+let PF='';
+function pcardHTML(it){
+  const pt=pOf(it.partner);
+  return `<article class="card pcard">
+    <div class="thumb ${it.img?'has-media':''}">${it.img?`<img class="cover" src="${it.img}" alt="" loading="lazy">`:''}<span class="who">Sold by ${esc(pt.name)}</span>${it.sample?'<span class="ptag">Sample</span>':''}${it.img?'':`<span class="tb">${esc(pt.name)}</span><span class="tm">${esc(it.t)}</span><span class="ts">${esc(catOf(it.cat)?.name||'')}</span>`}</div>
+    <div class="meta"><span class="title">${esc(it.t)}</span><span class="price">${pmoney(it.price,it.cur)}</span></div>
+    <span class="fine">Paid on ${esc(pt.name)} in ${it.cur}. Not covered by Houlio Duo escrow.</span>
+    <a class="btn btn-ghost btn-sm buy" href="${esc(it.url)}" target="_blank" rel="sponsored noopener noreferrer" data-pclick="${it.id}">Buy on ${esc(pt.name)}</a>
+  </article>`;
+}
+const pVisible=()=>PITEMS.filter(i=>i.on);
+function renderPartners(){
+  const items=pVisible(), used=[...new Set(items.map(i=>i.partner))];
+  document.getElementById('pChips').innerHTML=`<button class="chip" aria-pressed="${PF===''}" data-pf="">All stores</button>`+used.map(id=>`<button class="chip" aria-pressed="${PF===id}" data-pf="${id}">${esc(pOf(id).name)}</button>`).join('');
+  document.getElementById('pChips').onclick=e=>{const b=e.target.closest('[data-pf]');if(b){PF=b.dataset.pf;renderPartners();}};
+  const list=items.filter(i=>!PF||i.partner===PF);
+  document.getElementById('pCount').textContent=`${list.length} product${list.length===1?'':'s'}`;
+  document.getElementById('pGrid').innerHTML=list.length?list.map(pcardHTML).join(''):`<div class="no-results"><h3>No partner products yet</h3><p>Check back soon.</p></div>`;
+}
+function renderPStrip(){
+  const items=pVisible().slice(0,8), sec=document.getElementById('partner-picks');
+  sec.hidden=!items.length; document.getElementById('pStrip').innerHTML=items.map(pcardHTML).join('');
+}
+renderPStrip();
+function openGuide(id){
+  const pt=pOf(id);
+  body.innerHTML=`${xBtn}<div class="wiz guide"><h2>Join ${esc(pt.name)}</h2><p class="sub">${esc(pt.reach)}. Payouts: ${esc(pt.pay)}.</p>
+    <ol>${pt.steps.map(x=>`<li>${esc(x)}</li>`).join('')}</ol>
+    ${pt.warn?`<div class="warnbox">${esc(pt.warn)}</div>`:''}
+    <div class="wiz-foot"><button type="button" class="btn btn-ghost" onclick="dlg.close()">Close</button><a class="btn btn-primary" href="${pt.join}" target="_blank" rel="noopener noreferrer">Open sign-up page</a></div></div>`;
+  wideDlg(620); if(!dlg.open)dlg.showModal();
+}
+window.openGuide=openGuide;
+function hostOk(url,pt){try{const u=new URL(url);if(u.protocol!=='https:')return false;const h=u.hostname.replace(/^www\./,'');return pt.domains.some(d=>h===d||h.endsWith('.'+d));}catch{return false;}}
+let PIMG='';
+function addPItem(e){
+  e.preventDefault();
+  const pt=pOf(apP.value), t=apT.value.trim(), pr=parseFloat(apPr.value), url=apU.value.trim(), msg=document.getElementById('apMsg');
+  const err=!t?'Enter the product name.':!(pr>0)?'Enter the price shown on the partner site.':!hostOk(url,pt)?`That link isn’t a secure ${pt.name} link. Paste the affiliate link from your ${pt.name} dashboard.`:'';
+  if(err){msg.innerHTML=`<span class="err">${esc(err)}</span>`;return;}
+  PITEMS.unshift({id:Math.max(0,...PITEMS.map(i=>i.id))+1,partner:pt.id,t,price:pr,cur:apC.value,cat:apCat.value,url,img:PIMG,clicks:0,on:true});
+  PIMG=''; log('Added partner product',`${t} (${pt.name})`); toast('Partner product added'); renderPStrip(); renderConsole();
+}
+PANELS_EXTRA={
+  partners(){
+    return `<h2>Partner stores</h2><p class="sub">Products from other marketplaces. Buyers pay on the partner’s site; you earn their commission. Your Houlio fees don’t apply.</p>
+    <h3>Programs</h3>
+    <div class="tbl"><table class="t"><thead><tr><th>Program</th><th>Covers</th><th>Your affiliate ID</th><th>Status</th><th></th></tr></thead><tbody>
+    ${PARTNERS.map(p=>`<tr><td><b>${esc(p.name)}</b></td><td class="dim">${esc(p.reach)}</td><td><input class="prog-id" data-ptag="${p.id}" value="${esc(p.tag)}" placeholder="e.g. houlioduo-20" aria-label="${esc(p.name)} affiliate ID"></td><td>${stb(p.on?'Active':p.tag?'Pending':'Not joined')}</td>
+      <td><div class="act"><button class="mini" data-do="p-guide" data-id="${p.id}">How to join</button><button class="mini ${p.on?'':'pri'}" data-do="p-toggle" data-id="${p.id}">${p.on?'Pause':'Mark active'}</button></div></td></tr>`).join('')}
+    </tbody></table></div>
+    <h3>Add a partner product</h3>
+    <form class="addp" id="addPItem" novalidate>
+      <div class="field"><label for="apP">Store</label><select id="apP">${PARTNERS.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('')}</select></div>
+      <div class="field" style="grid-column:span 2"><label for="apT">Product name</label><input id="apT" placeholder="As shown on the partner site"></div>
+      <div class="field"><label for="apPr">Price</label><input id="apPr" type="number" step="0.01" min="0" inputmode="decimal"></div>
+      <div class="field"><label for="apC">Currency</label><select id="apC">${['USD','NGN','EUR','GBP','KES','GHS','ZAR','AED','CAD','AUD'].map(c=>`<option>${c}</option>`).join('')}</select></div>
+      <div class="field"><label for="apCat">Category</label><select id="apCat">${CATS.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('')}</select></div>
+      <div class="field full"><label for="apU">Affiliate link</label><input id="apU" type="url" placeholder="https://… from your partner dashboard" spellcheck="false"></div>
+      <div class="field full"><label for="apI">Photo (optional)</label><input id="apI" type="file" accept="image/*" style="padding-top:10px"></div>
+      <div class="full" style="display:flex;gap:14px;align-items:center;flex-wrap:wrap"><button class="btn btn-primary btn-sm">Add product</button><span id="apMsg" class="formnote"></span></div>
+    </form>
+    <h3>Partner products</h3>
+    <div class="tbl"><table class="t"><thead><tr><th>Product</th><th>Store</th><th>Price</th><th>Clicks</th><th>Status</th><th></th></tr></thead><tbody>
+    ${PITEMS.length?PITEMS.map(i=>`<tr><td><b style="white-space:normal">${esc(i.t)}</b><div class="dim">${i.sample?'Sample, links to the store homepage':esc(new URL(i.url).hostname)}</div></td><td>${esc(pOf(i.partner).name)}</td><td>${pmoney(i.price,i.cur)}</td><td>${i.clicks}</td><td>${stb(i.on?'Live':'Hidden')}</td>
+      <td><div class="act"><button class="mini" data-do="pi-toggle" data-id="${i.id}">${i.on?'Hide':'Show'}</button><button class="mini dan" data-do="pi-del" data-id="${i.id}">Remove</button></div></td></tr>`).join(''):`<tr><td colspan="6" class="empty-row">No partner products yet.</td></tr>`}
+    </tbody></table></div>
+    <p class="formnote" style="margin-top:14px">Commission is earned and paid by each partner. Check sales and payouts in their dashboards; clicks here count only taps on this site.</p>`;
+  }
+};
+
 /* ============ owner console ============ */
 const HELD=['Payment confirmed','Funds secured','Seller notified','Order processing','Shipped or delivered','Awaiting buyer confirmation','Refund requested','Disputed','Under review'];
 const ORDERS=[
@@ -1319,7 +1468,7 @@ const sellerOf=o=>L.find(x=>x.id===o.item).seller;
 const stCls=s=>/Released|Completed|Paid|Approved|Active|Resolved|Live/.test(s)?'ok':/Disput|review|Refund requested|Pending|Held/i.test(s)?'warn':/Refunded|Rejected|Suspended|Hidden/i.test(s)?'bad':'info';
 const stb=s=>`<span class="st ${stCls(s)}">${esc(s)}</span>`;
 let conTab='overview';
-const TABS=[['overview','Overview'],['verify','Verification',()=>APPS.filter(a=>a.state==='Pending').length],['orders','Orders and escrow',()=>ORDERS.filter(o=>HELD.includes(o.state)).length],['disputes','Disputes',()=>DISPUTES.filter(d=>d.state==='Under review').length],['withdrawals','Withdrawals',()=>WDR.filter(w=>w.state==='Pending').length],['listings','Listings',()=>PENDING.size],['users','Users'],['categories','Categories'],['fees','Fees'],['audit','Audit log']];
+const TABS=[['overview','Overview'],['verify','Verification',()=>APPS.filter(a=>a.state==='Pending').length],['orders','Orders and escrow',()=>ORDERS.filter(o=>HELD.includes(o.state)).length],['disputes','Disputes',()=>DISPUTES.filter(d=>d.state==='Under review').length],['withdrawals','Withdrawals',()=>WDR.filter(w=>w.state==='Pending').length],['listings','Listings',()=>PENDING.size],['users','Users'],['categories','Categories'],['partners','Partner stores'],['fees','Fees'],['audit','Audit log']];
 function money(n){return '$'+n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
 function renderConsole(){
   document.getElementById('conNav').innerHTML=TABS.map(([k,l,c])=>{const n=c?c():0;return `<button data-tab="${k}" aria-current="${conTab===k}">${l}${n?`<span class="bd">${n}</span>`:''}</button>`;}).join('');
@@ -1327,6 +1476,9 @@ function renderConsole(){
   const P=document.getElementById('conPanel'); P.innerHTML=PANELS[conTab](); P.onclick=onConsoleClick;
   P.querySelectorAll('[data-feeform]').forEach(f=>f.onsubmit=saveFees);
   const ac=P.querySelector('#addCat'); if(ac)ac.onsubmit=addCat;
+  const ap=P.querySelector('#addPItem'); if(ap)ap.onsubmit=addPItem;
+  const api=P.querySelector('#apI'); if(api)api.onchange=async()=>{const f=api.files[0];if(!f)return;try{PIMG=(await compressImage(f)).url;document.getElementById('apMsg').textContent='Photo ready';}catch{document.getElementById('apMsg').innerHTML='<span class="err">Couldn’t open that photo. Use JPG or PNG.</span>';}};
+  P.querySelectorAll('[data-ptag]').forEach(i=>i.onchange=()=>{const pt=pOf(i.dataset.ptag);pt.tag=i.value.trim();log('Saved affiliate ID',`${pt.name}: ${pt.tag||'cleared'}`);toast('Affiliate ID saved');renderConsole();});
 }
 const PANELS={
   overview(){
@@ -1414,6 +1566,7 @@ const PANELS={
     </tbody></table></div>`;
   }
 };
+Object.assign(PANELS,PANELS_EXTRA);
 function confirmTwice(b,label){if(b.classList.contains('armed'))return true;document.querySelectorAll('.mini.armed').forEach(x=>{x.classList.remove('armed');x.textContent=x.dataset.lbl;});b.dataset.lbl=b.textContent;b.classList.add('armed');b.textContent=label;setTimeout(()=>{if(b.isConnected&&b.classList.contains('armed')){b.classList.remove('armed');b.textContent=b.dataset.lbl;}},4000);return false;}
 function onConsoleClick(e){
   const t=e.target.closest('[data-tab]'); if(t&&!t.dataset.do){conTab=t.dataset.tab;renderConsole();return;}
@@ -1430,6 +1583,10 @@ function onConsoleClick(e){
     case 'dis-info':{const d=DISPUTES.find(x=>x.id===id);log('Requested dispute evidence',d.id);toast('Both parties asked for more evidence');return;}
     case 'wd-ok':{if(!confirmTwice(b,'Confirm send'))return;const w=WDR.find(x=>x.id===id);w.state='Paid';log('Approved withdrawal',`${w.id}: ${money(w.amount-FEES.withdrawal)} ${w.asset} on ${w.net}`);toast(`${w.id} sent`);break;}
     case 'wd-hold':{const w=WDR.find(x=>x.id===id);w.state='Held';log('Held withdrawal',w.id);toast(`${w.id} on hold`);break;}
+    case 'p-guide':openGuide(id);return;
+    case 'p-toggle':{const pt=pOf(id);pt.on=!pt.on;log(pt.on?'Partner marked active':'Partner paused',pt.name);toast(`${pt.name} ${pt.on?'active':'paused'}`);break;}
+    case 'pi-toggle':{const it=PITEMS.find(x=>x.id==id);it.on=!it.on;log(it.on?'Showed partner product':'Hid partner product',it.t);renderPStrip();break;}
+    case 'pi-del':{if(!confirmTwice(b,'Confirm remove'))return;const i=PITEMS.findIndex(x=>x.id==id);log('Removed partner product',PITEMS[i].t);PITEMS.splice(i,1);renderPStrip();toast('Removed');break;}
     case 'lst-ok':{const l=L.find(p=>p.id==id);PENDING.delete(+id);log('Approved listing',l.t);toast('Listing is live');renderCats();break;}
     case 'lst-no':{if(!confirmTwice(b,'Confirm reject'))return;const l=L.find(p=>p.id==id);PENDING.delete(+id);REJECTED.add(+id);log('Rejected listing',l.t);toast('Listing rejected');break;}
     case 'lst-hide':HIDDEN.add(+id);log('Hid listing',L.find(p=>p.id==id).t);toast('Listing hidden');break;
@@ -1458,7 +1615,7 @@ window.HD={how:0,inHow:false,scrollY:0};
 const how=document.getElementById('how'), stepsEl=[...document.querySelectorAll('.step')], bar=document.getElementById('howBar'), stTxt=document.getElementById('stateTxt');
 function onScroll(){
   const y=window.scrollY; HD.scrollY=y;
-  nav.classList.toggle('solid',y>40||!document.getElementById('view-market').hidden||!document.getElementById('view-console').hidden);
+  nav.classList.toggle('solid',y>40||!document.getElementById('view-market').hidden||!document.getElementById('view-console').hidden||!document.getElementById('view-partners').hidden);
   const r=how.getBoundingClientRect(), total=how.offsetHeight-innerHeight;
   const p=Math.min(1,Math.max(0,-r.top/total));
   HD.how=p; HD.inHow=r.top<innerHeight*.6&&r.bottom>innerHeight*.4;
