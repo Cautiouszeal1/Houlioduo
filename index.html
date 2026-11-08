@@ -890,7 +890,16 @@ function cardHTML(p){
 }
 
 /* ============ home render ============ */
-function renderFeatured(){try{pVisible;}catch{return;}const own=L.filter(p=>p.mine&&visible(p)&&p.media&&p.media.length);document.getElementById('featuredStrip').innerHTML=own.map(cardHTML).join('')+pVisible().slice(0,12).map(pcardHTML).join('');}
+function featuredPick(){
+  const seed=slot(); const rnd=k=>{let x=Math.sin(seed*9301+k*49297)*233280;return x-Math.floor(x);};
+  const live=PITEMS.filter(i=>i.on&&LIVE[i.url]!=='gone'&&!(LIVE[i.url]==='failed'&&!i.img));
+  const mix=a=>a.map((v,k)=>[rnd(v.id+k),v]).sort((a,b)=>a[0]-b[0]).map(x=>x[1]);
+  const mine=mix(live.filter(i=>i.region===USER.region)), world=mix(live.filter(i=>i.region==='global')), rest=mix(live.filter(i=>i.region!==USER.region&&i.region!=='global'));
+  const out=[...mine.slice(0,5),...world.slice(0,3)]; for(const v of [...rest,...mine.slice(5),...world.slice(3)]){if(out.length>=18)break; if(!out.includes(v))out.push(v);}
+  return out;
+}
+function renderFeatured(){try{pVisible;}catch{return;}const own=L.filter(p=>p.mine&&visible(p)&&p.media&&p.media.length);const pick=featuredPick();enrich(pick);document.getElementById('featuredStrip').innerHTML=own.map(cardHTML).join('')+pick.filter(i=>imgOf(i)).slice(0,12).map(pcardHTML).join('');}
+let lastSlot=null; setInterval(()=>{let sl;try{sl=slot();}catch{return;} if(lastSlot===null){lastSlot=sl;return;} if(sl!==lastSlot){lastSlot=sl;for(const k in LIVE)delete LIVE[k];renderPStrip();if(!document.getElementById('view-partners').hidden)renderPartners();}},30000);
 renderFeatured();
 function renderCats(){document.getElementById('catList').innerHTML=CATS.map(c=>`<button class="cat" data-cat="${c.id}"><span><span class="name">${c.name}</span><div class="subs">${c.subs}</div></span><span class="go">${L.filter(p=>p.cat===c.id).length} listings</span></button>`).join('');}
 renderCats();
@@ -1396,24 +1405,76 @@ const PARTNERS=[
 PARTNERS.forEach(p=>{p.tag='';p.on=false;});
 // Real product pages. Photo, title and price are read live from each page (api/preview); products that are gone hide themselves.
 const PITEMS=[
-  {id:1,partner:'jumia',region:'africa',cat:'elec',t:'Samsung Galaxy A16, 4GB/128GB, black',url:'https://www.jumia.com.ng/samsung-galaxy-a16-6.7-hd-4gb-ram128gb-rom-android-14-black-401737684.html'},
-  {id:2,partner:'jumia',region:'africa',cat:'elec',t:'Samsung Galaxy A16, 4GB/128GB, gray',url:'https://www.jumia.com.ng/samsung-galaxy-a16-4gb-128gb-dual-sim-5000mah-gray-418827182.html'},
-  {id:3,partner:'bol',region:'europe',cat:'elec',t:'Sony WH-1000XM5 noise-cancelling headphones, black',url:'https://www.bol.com/nl/nl/p/sony-wh-1000xm5-draadloze-koptelefoon-met-noise-cancelling-zwart/9300000096972714/',img:'https://media.s-bol.com/gMLJEBpA8NpZ/w0kkgoX/545x840.jpg'},
-  {id:4,partner:'backmarket',region:'europe',cat:'elec',t:'iPhone 13, 128GB, blue, refurbished',url:'https://www.backmarket.co.uk/en-gb/p/iphone-13-128-gb-blue-unlocked/e4d4b68e-9dec-438d-be52-d348924bfe62'},
-  {id:5,partner:'ebay-eu',region:'europe',cat:'poker',t:'Poker chip set, 500 chips, aluminium case, 14g',url:'https://www.ebay.de/itm/316708663417'},
-  {id:6,partner:'ebay-us',region:'north-america',cat:'poker',t:'14g clay poker chip set, 500 pieces, aluminium case',url:'https://www.ebay.com/itm/305280400292'},
-  {id:7,partner:'aliexpress',region:'global',cat:'poker',t:'EPT ceramic poker chips, casino style',url:'https://www.aliexpress.com/item/4000766130446.html',img:'https://ae-pic-a1.aliexpress-media.com/kf/H9bee5928c09b42699887c91f2d1366aeF.jpg'},
-  {id:8,partner:'aliexpress',region:'global',cat:'poker',t:'Poker chips, 100 pieces, 11.5g, 10 colours',url:'https://www.aliexpress.com/item/4001322029040.html',img:'https://ae-pic-a1.aliexpress-media.com/kf/H76a095ebcc304b75a20ebf33d4e4fb24z.jpg'}
+  {"id": 1, "partner": "jumia", "region": "africa", "cat": "elec", "t": "Samsung Galaxy A16, 4GB/128GB, black", "url": "https://www.jumia.com.ng/samsung-galaxy-a16-6.7-hd-4gb-ram128gb-rom-android-14-black-401737684.html"},
+  {"id": 2, "partner": "jumia", "region": "africa", "cat": "elec", "t": "Samsung A16, 4GB/128GB, dual SIM, black", "url": "https://www.jumia.com.ng/samsung-a16-4gb-128gb-dual-sim-5000mah-black-418724740.html"},
+  {"id": 3, "partner": "jumia", "region": "africa", "cat": "elec", "t": "Samsung Galaxy A16 5G, 4GB/128GB, gold", "url": "https://www.jumia.com.ng/samsung-galaxy-a16-5g-4gb-128gb-dual-sim-5000mah-gold-402061130.html"},
+  {"id": 4, "partner": "jumia", "region": "africa", "cat": "elec", "t": "HP EliteBook 645 G9, Ryzen 5 Pro, 16GB/256GB", "url": "https://www.jumia.com.ng/362296738.html"},
+  {"id": 5, "partner": "jumia", "region": "africa", "cat": "elec", "t": "HP EliteBook 840 G7, Core i5, 16GB/512GB", "url": "https://www.jumia.com.ng/elitebook-840-g7-1oth-gen-intel-core-i5-16gb-ram512gb-ssdbacklit-keyfingerprint-windows-11-pro-bag-hp-mpg11536350.html"},
+  {"id": 6, "partner": "jumia", "region": "africa", "cat": "elec", "t": "HP EliteBook 840 G7 touchscreen, 8GB/512GB", "url": "https://www.jumia.com.ng/hp-hp-elitebook-840-g7-intel-core-i5-touchscreen-8gb-ram512gb-ssd-win-11-pro-361342818.html", "img": "https://ng.jumia.is/unsafe/fit-in/500x500/filters:fill(white)/product/81/8243163/1.jpg"},
+  {"id": 7, "partner": "jumia", "region": "africa", "cat": "elec", "t": "HP EliteBook 840 G11, Core Ultra 5, 512GB", "url": "https://www.jumia.com.ng/hp-elitebook-840-g11-intel-core-ultra-5-125u-8gb-ram-512gb-ssd-14.0-display-fingerprint-backlit-keyboard-windows-11-pro-5-years-channel-warranty-a26s8ea-418975134.html"},
+  {"id": 8, "partner": "jumia", "region": "africa", "cat": "elec", "t": "HP EliteBook 840 G6, Core i5, 16GB/1TB", "url": "https://www.jumia.com.ng/hp-elitebook-840-g6-core-i516gb-ram1tb-ssd-win11-bag-227679638.html"},
+  {"id": 9, "partner": "jumia", "region": "africa", "cat": "elec", "t": "HP EliteBook 840 G6, Core i5, 16GB/512GB", "url": "https://www.jumia.com.ng/hp-elitebook-840-g6-intel-core-i5-16gb-ram512gb-ssdbacklit-382077016.html", "img": "https://ng.jumia.is/unsafe/fit-in/500x500/filters:fill(white)/product/61/0770283/1.jpg"},
+  {"id": 10, "partner": "jumia", "region": "africa", "cat": "elec", "t": "HP EliteBook 840 G8, Core i5, 16GB/512GB", "url": "https://www.jumia.com.ng/elitebook-840-g8-11th-generation-core-i5-16gb-ram512gb-ssdbacklit-keyboardwindows-11-probag-hp-mpg11956966.html", "img": "https://ng.jumia.is/unsafe/fit-in/500x500/filters:fill(white)/product/34/0721643/1.jpg"},
+  {"id": 11, "partner": "jumia", "region": "africa", "cat": "fashion", "t": "Babolat Jet Tere tennis shoe, grey", "url": "https://www.jumia.com.ng/babolat-jet-tere-all-court-men-tennis-shoe-greyaero-270152220.html"},
+  {"id": 12, "partner": "jumia", "region": "africa", "cat": "fashion", "t": "SWIMS men’s knit Olsen Oxford shoe", "url": "https://www.jumia.com.ng/swims-mens-knit-olsen-oxford-shoe-419111633.html", "img": "https://ng.jumia.is/unsafe/fit-in/500x500/filters:fill(white)/product/33/6111914/1.jpg"},
+  {"id": 13, "partner": "jumia", "region": "africa", "cat": "fashion", "t": "Nike React Infinity Flyknit 2 running shoe", "url": "https://www.jumia.com.ng/nike-running-react-infinity-fk-2-82159257.html"},
+  {"id": 14, "partner": "jumia", "region": "africa", "cat": "fashion", "t": "Safety Jogger Modulo S3S safety sneaker", "url": "https://www.jumia.com.ng/safety-jogger-modulo-s3s-mid-ankle-safety-shoe-safety-boot-382057927.html"},
+  {"id": 15, "partner": "jumia", "region": "africa", "cat": "fashion", "t": "Men’s digital wrist watch, black", "url": "https://www.jumia.com.ng/fashion-mens-digital-wrist-watch.-65667525.html"},
+  {"id": 16, "partner": "jumia", "region": "africa", "cat": "fashion", "t": "41mm automatic watch, sapphire glass, steel", "url": "https://www.jumia.com.ng/fashion-41mm-watch-automatic-mechanical-mens-waterproof-business-for-men-sapphire-gl-steel-strap-blue-wrist-watches-291859024.html", "img": "https://ng.jumia.is/unsafe/fit-in/500x500/filters:fill(white)/product/42/0958192/1.jpg"},
+  {"id": 17, "partner": "jumia", "region": "africa", "cat": "elec", "t": "Samsung Galaxy Watch 4, 44mm, silver", "url": "https://www.jumia.com.ng/galaxy-watch-4-44mm-bluetoothwi-figps-smartwatch-silver-samsung-mpg9607814.html", "img": "https://ng.jumia.is/unsafe/fit-in/500x500/filters:fill(white)/product/52/5704833/1.jpg"},
+  {"id": 18, "partner": "jumia", "region": "africa", "cat": "elec", "t": "GPS NFC smart watch, AMOLED, IP67", "url": "https://www.jumia.com.ng/generic-gps-nfc-smart-watch-men-360360-amoled-screen-heart-rate-ip67-waterproof-man-smartwatch-418392334.html", "img": "https://ng.jumia.is/unsafe/fit-in/500x500/filters:fill(white)/product/43/3293814/1.jpg"},
+  {"id": 19, "partner": "jumia", "region": "africa", "cat": "elec", "t": "oraimo Watch ER, 1.43\" AMOLED, Bluetooth call", "url": "https://www.jumia.com.ng/oraimo-watch-er-osw-42-1.43-amoled-bluetooth-call-ip68-419259307.html"},
+  {"id": 20, "partner": "jumia", "region": "africa", "cat": "elec", "t": "oraimo 1.43\" AMOLED smart watch, waterproof", "url": "https://www.jumia.com.ng/oraimo-1.43-amoled-wireless-call-waterproof-smart-watch-er-295131670.html"},
+  {"id": 21, "partner": "jumia", "region": "africa", "cat": "fashion", "t": "Skmei men’s sports watch, 50m waterproof", "url": "https://www.jumia.co.ke/sport-skmei-men-sports-watch-50m-waterproof-digital-wristwatch-326455664.html"},
+  {"id": 22, "partner": "jumia", "region": "africa", "cat": "fashion", "t": "Naviforce men’s steel quartz watch", "url": "https://www.jumia.co.ke/naviforce-mens-watches-sport-wristwatch-fashion-steel-quartz-watch-men-clock-relogio-masculino-top-brand-waterproof-211220201.html"},
+  {"id": 23, "partner": "bol", "region": "europe", "cat": "elec", "t": "Sony WH-1000XM5 noise-cancelling headphones", "url": "https://www.bol.com/nl/nl/p/sony-wh-1000xm5-draadloze-koptelefoon-met-noise-cancelling-zwart/9300000096972714/", "img": "https://media.s-bol.com/gMLJEBpA8NpZ/w0kkgoX/545x840.jpg"},
+  {"id": 24, "partner": "backmarket", "region": "europe", "cat": "elec", "t": "iPhone 13, 128GB, blue, refurbished", "url": "https://www.backmarket.co.uk/en-gb/p/iphone-13-128-gb-blue-unlocked/e4d4b68e-9dec-438d-be52-d348924bfe62"},
+  {"id": 25, "partner": "backmarket", "region": "europe", "cat": "elec", "t": "iPhone 13, 128GB, pink, refurbished", "url": "https://www.backmarket.co.uk/en-gb/p/iphone-13-128-gb-pink-unlocked/d1989098-648d-490e-a719-7c4b6ab8b1ae"},
+  {"id": 26, "partner": "backmarket", "region": "europe", "cat": "elec", "t": "iPhone 13, 128GB, green, refurbished", "url": "https://www.backmarket.co.uk/en-gb/p/iphone-13-128-gb-green-unlocked/0d36dce6-d7ce-4356-9763-c4677879cb02"},
+  {"id": 27, "partner": "backmarket", "region": "europe", "cat": "elec", "t": "iPhone 13 Pro Max, 128GB, silver, refurbished", "url": "https://www.backmarket.co.uk/en-gb/p/iphone-13-pro-max-128-gb-silver-unlocked/d1dc3338-2bb0-40ab-b74f-e76788ea02d4"},
+  {"id": 28, "partner": "backmarket", "region": "europe", "cat": "elec", "t": "MacBook Air M1, 8GB/256GB, refurbished", "url": "https://www.backmarket.co.uk/en-gb/p/macbook-air-2020-13-m1-de-con-cpu-de-8-nucleos-y-gpu-de-7-nucleos-8gb-ram-ssd-256gb-qwerty-ingles-uk/b8f6f0c1-d4f4-4693-8150-b112d5371b64"},
+  {"id": 29, "partner": "backmarket", "region": "europe", "cat": "elec", "t": "MacBook Air M1, 8GB/512GB, silver, refurbished", "url": "https://www.backmarket.co.uk/en-gb/p/macbook-air-2020-13-inch-with-m1-8-core-and-7-core-gpu-8gb-ram-ssd-512gb-qwerty-english-uk/c4829d5f-d893-4a49-ab81-a1fbc9752c2c"},
+  {"id": 30, "partner": "backmarket", "region": "europe", "cat": "elec", "t": "MacBook Air M1, 16GB/512GB, gold, refurbished", "url": "https://www.backmarket.co.uk/en-gb/p/macbook-air-2020-13-inch-with-m1-8-core-and-8-core-gpu-16gb-ram-ssd-512gb-qwerty-english-us/7197156b-e7d6-461a-9dbb-d30008b73cfb"},
+  {"id": 31, "partner": "ebay-eu", "region": "europe", "cat": "collect", "t": "Canon AE-1 35mm film camera, FD 50mm lens", "url": "https://www.ebay.co.uk/itm/394676546606"},
+  {"id": 32, "partner": "ebay-eu", "region": "europe", "cat": "collect", "t": "Olympus Trip 35 film cameras, pair", "url": "https://www.ebay.co.uk/itm/267729338792"},
+  {"id": 33, "partner": "ebay-eu", "region": "europe", "cat": "poker", "t": "Poker set, 500 chips, cards, aluminium case", "url": "https://www.ebay.de/itm/316708663417"},
+  {"id": 34, "partner": "ebay-eu", "region": "europe", "cat": "poker", "t": "Casino-quality clay poker set, 500 pieces", "url": "https://www.ebay.de/itm/376301209540"},
+  {"id": 35, "partner": "ebay-eu", "region": "europe", "cat": "poker", "t": "Fat Cat 11.5g Claytec poker chip set", "url": "https://www.ebay.de/itm/157212692278"},
+  {"id": 36, "partner": "ebay-eu", "region": "europe", "cat": "poker", "t": "Texas Hold’em poker set, 500 chips, dealer button", "url": "https://www.ebay.de/itm/356943239073"},
+  {"id": 37, "partner": "ebay-eu", "region": "europe", "cat": "poker", "t": "Clay poker chip set, 500 pieces, 11.5g", "url": "https://www.ebay.de/itm/176378743950"},
+  {"id": 38, "partner": "ebay-us", "region": "north-america", "cat": "elec", "t": "Apple iPhone 15 Pro, 256GB, black titanium", "url": "https://www.ebay.com/itm/156939303966"},
+  {"id": 39, "partner": "ebay-us", "region": "north-america", "cat": "elec", "t": "Apple iPhone 15 Pro Max, 256GB, blue titanium", "url": "https://www.ebay.com/itm/156936269099"},
+  {"id": 40, "partner": "ebay-us", "region": "north-america", "cat": "elec", "t": "Apple iPhone 15 Pro, 128GB, blue titanium", "url": "https://www.ebay.com/itm/156907774458"},
+  {"id": 41, "partner": "ebay-us", "region": "north-america", "cat": "elec", "t": "Apple iPhone 15 Pro, 128GB, white titanium", "url": "https://www.ebay.com/itm/198354596677"},
+  {"id": 42, "partner": "ebay-us", "region": "north-america", "cat": "elec", "t": "Apple iPhone 15 Pro Max, 256GB, natural", "url": "https://www.ebay.com/itm/156914423441"},
+  {"id": 43, "partner": "ebay-us", "region": "north-america", "cat": "elec", "t": "iPhone 15 Pro Max, 256GB, natural, unlocked", "url": "https://www.ebay.com/itm/286702185655"},
+  {"id": 44, "partner": "ebay-us", "region": "north-america", "cat": "poker", "t": "14g clay poker chip set, 500 pieces", "url": "https://www.ebay.com/itm/305280400292"},
+  {"id": 45, "partner": "ebay-us", "region": "north-america", "cat": "poker", "t": "500-piece poker chip set, aluminium case", "url": "https://www.ebay.com/itm/203038263710"},
+  {"id": 46, "partner": "ebay-us", "region": "north-america", "cat": "collect", "t": "Canon AE-1 Program 35mm camera, 50mm lens", "url": "https://www.ebay.ca/itm/178289754530", "img": "https://i.ebayimg.com/images/g/LcIAAeSw3etplz0X/s-l500.jpg"},
+  {"id": 47, "partner": "ebay-au", "region": "asia-pacific", "cat": "elec", "t": "Apple iPhone 15 Pro, 256GB, natural titanium", "url": "https://www.ebay.com.au/itm/146687419653"},
+  {"id": 48, "partner": "ebay-au", "region": "asia-pacific", "cat": "elec", "t": "Apple iPhone 15 Pro, 256GB, blue titanium", "url": "https://www.ebay.com.au/itm/286697960818"},
+  {"id": 49, "partner": "ebay-au", "region": "asia-pacific", "cat": "poker", "t": "14g clay poker chip set, 500 pieces", "url": "https://www.ebay.com.au/itm/305280400292"},
+  {"id": 50, "partner": "aliexpress", "region": "global", "cat": "poker", "t": "EPT ceramic poker chips, casino style", "url": "https://www.aliexpress.com/item/4000766130446.html", "img": "https://ae-pic-a1.aliexpress-media.com/kf/H9bee5928c09b42699887c91f2d1366aeF.jpg"},
+  {"id": 51, "partner": "aliexpress", "region": "global", "cat": "poker", "t": "Poker chips, 100 pieces, 11.5g, 10 colours", "url": "https://www.aliexpress.com/item/4001322029040.html", "img": "https://ae-pic-a1.aliexpress-media.com/kf/H76a095ebcc304b75a20ebf33d4e4fb24z.jpg"},
+  {"id": 52, "partner": "aliexpress", "region": "global", "cat": "fashion", "t": "YIKAZE men’s sports wristwatch", "url": "https://www.aliexpress.com/item/1005007656901558.html", "img": "https://ae-pic-a1.aliexpress-media.com/kf/S745cdf55154c48d9881a72b80f99aeb7R.jpg"},
+  {"id": 53, "partner": "aliexpress", "region": "global", "cat": "fashion", "t": "YIKAZE Y01 military digital watch", "url": "https://www.aliexpress.com/item/1005007035471652.html", "img": "https://ae-pic-a1.aliexpress-media.com/kf/Se2396d1e1785400bbbb181d9647508aaW.jpg"},
+  {"id": 54, "partner": "aliexpress", "region": "global", "cat": "fashion", "t": "ACHENGY multifunction sports watch", "url": "https://www.aliexpress.com/item/1005007420124839.html", "img": "https://ae-pic-a1.aliexpress-media.com/kf/Sa9919b9ea1b64603bcb37c6f2a486882K.jpg"},
+  {"id": 55, "partner": "aliexpress", "region": "global", "cat": "elec", "t": "LIGE smart watch, Bluetooth call, IP68", "url": "https://www.aliexpress.com/item/1005005471449352.html", "img": "https://ae-pic-a1.aliexpress-media.com/kf/S45c97e324dda46eb8102cc9379d936c67.jpg"},
+  {"id": 56, "partner": "aliexpress", "region": "global", "cat": "home", "t": "Moes smart Bluetooth water timer", "url": "https://www.aliexpress.com/item/1005002940631849.html", "img": "https://ae-pic-a1.aliexpress-media.com/kf/Sbf066dee6feb45c28230d1b8bb0b5f80X.jpg"},
+  {"id": 57, "partner": "aliexpress", "region": "global", "cat": "fashion", "t": "SMAEL dual-display sports watch", "url": "https://www.aliexpress.com/item/32779408249.html"},
+  {"id": 58, "partner": "aliexpress", "region": "global", "cat": "fashion", "t": "SMAEL military watch, 50m waterproof", "url": "https://www.aliexpress.com/item/32881453818.html"},
+  {"id": 59, "partner": "aliexpress", "region": "global", "cat": "fashion", "t": "SMAEL chronograph sports watch", "url": "https://www.aliexpress.com/item/32965194084.html"}
 ].map(i=>({...i,clicks:0,on:true}));
 const LIVE={}; // url -> {ok,title,image,price,currency} | 'pending' | 'failed'
+const WINDOW_MS=10*60*1000; const slot=()=>Math.floor(Date.now()/WINDOW_MS);
 async function enrich(items){
   const todo=items.filter(i=>!LIVE[i.url]); if(!todo.length)return;
-  let cache={}; try{cache=JSON.parse(sessionStorage.getItem('hd-live')||'{}');}catch{}
+  let cache={}; try{const c=JSON.parse(sessionStorage.getItem('hd-live')||'{}');if(c._slot===slot())cache=c;}catch{} cache._slot=slot();
   await Promise.all(todo.map(async i=>{
-    if(cache[i.url]){LIVE[i.url]=cache[i.url];return;}
+    if(cache[i.url]&&cache[i.url]!=='failed'){LIVE[i.url]=cache[i.url];return;}
     LIVE[i.url]='pending';
     try{const ctl=new AbortController();setTimeout(()=>ctl.abort(),9000);
-      const r=await fetch('/api/preview?url='+encodeURIComponent(i.url),{signal:ctl.signal}); const j=await r.json();
+      const r=await fetch('/api/preview?url='+encodeURIComponent(i.url)+'&s='+slot(),{signal:ctl.signal}); const j=await r.json();
       LIVE[i.url]=j&&j.ok?j:(j&&j.moved?'gone':'failed');}catch{LIVE[i.url]='failed';}
     cache[i.url]=LIVE[i.url];
   }));
@@ -1508,6 +1569,7 @@ function pcardHTML(it){
 }
 const pVisible=()=>PITEMS.filter(i=>i.on&&LIVE[i.url]!=='gone'&&imgOf(i)).sort((a,b)=>(b.region===USER.region)-(a.region===USER.region)||(b.region==='global')-(a.region==='global'));
 function renderPartners(){
+  enrich(PITEMS.filter(i=>i.on));
   const items=pVisible();
   if(prAuto&&PR===''&&USER.region&&items.some(i=>i.region===USER.region))PR=USER.region;
   const ss=document.getElementById('pSearch'); if(!ss.dataset.cc||ss.dataset.cc!==USER.country+'|'+USER.region){ss.innerHTML=storeSearchHTML();ss.dataset.cc=USER.country+'|'+USER.region;const iq=document.getElementById('psq');iq.oninput=()=>{PSQ=iq.value.trim();refreshStoreLinks();};}
@@ -1528,7 +1590,6 @@ function renderPartners(){
   document.getElementById('pGrid').innerHTML=list.length?html:`<div class="no-results"><h3>No partner products here yet</h3><p>Try another region.</p></div>`;
 }
 function renderPStrip(){
-  enrich(PITEMS.filter(i=>i.on));
   const sub=document.getElementById('featSub'); if(sub)sub.textContent=USER.country?`Live products from stores around the world, starting with ${cName(USER.country)}. Tap one to buy it on the store’s site.`:'Live products from stores around the world. Tap one to buy it on the store’s site.';
   renderFeatured();
 }

@@ -1,6 +1,6 @@
 // Vercel serverless function: reads a partner store's product page and returns its photo, title and price.
 // GET /api/preview?url=<product page>  ->  { ok, title, image, price, currency, url }
-// Only allow-listed store domains are fetched. Results are cached at Vercel's edge for 6 hours.
+// Only allow-listed store domains are fetched. Results are cached at Vercel's edge for 10 minutes.
 const ALLOW = ['jumia.com.ng','jumia.co.ke','jumia.com.gh','jumia.com.eg','jumia.ma','konga.com','ebay.com','ebay.co.uk','ebay.de','ebay.fr','ebay.it','ebay.es','ebay.ca','ebay.com.au','bol.com','backmarket.co.uk','backmarket.com','backmarket.fr','backmarket.de','backmarket.es','backmarket.it','zalando.co.uk','zalando.de','zalando.fr','allegro.pl','aliexpress.com','aliexpress.us','temu.com','amazon.com','amazon.co.uk','amazon.de','amazon.fr','amazon.it','amazon.es','amazon.ca','amazon.ae','amazon.sa','amazon.in','amazon.com.au'];
 const okHost = h => { h = h.replace(/^www\./, ''); return ALLOW.some(d => h === d || h.endsWith('.' + d)); };
 const decode = s => String(s || '').replace(/&amp;/g,'&').replace(/&quot;/g,'"').replace(/&#39;/g,"'").replace(/&lt;/g,'<').replace(/&gt;/g,'>').trim();
@@ -52,7 +52,7 @@ module.exports = async (req, res) => {
     const price = meta(html, ['product:price:amount', 'og:price:amount', 'price']) || (ld.price != null ? String(ld.price) : '');
     const currency = meta(html, ['product:price:currency', 'og:price:currency', 'priceCurrency']) || ld.currency || '';
     const ok = !moved && !!image && !!title;
-    res.setHeader('Cache-Control', ok ? 's-maxage=21600, stale-while-revalidate=86400' : 's-maxage=1800');
+    res.setHeader('Cache-Control', ok ? 's-maxage=600, stale-while-revalidate=3600' : 's-maxage=600');
     return res.status(200).send(JSON.stringify({ ok, moved, title, image, price, currency, url: finalUrl.href }));
   } catch (e) {
     clearTimeout(timer);
