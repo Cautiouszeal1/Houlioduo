@@ -418,6 +418,8 @@ dialog::backdrop{background:rgba(3,6,18,.72);backdrop-filter:blur(6px)}
 .you svg{flex:none}.you span{flex:1;min-width:200px}.you b{color:var(--white);font-weight:600}
 .you select{height:36px;padding:0 10px;border-radius:8px;background:rgba(6,10,26,.7);border:1px solid var(--line);font-size:14px;max-width:100%}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.pcard .meta{flex-direction:column;gap:4px}
+.pcard .price{font-size:18px}
 .pcard .rgn{font-size:13px;color:#B4C3FF;margin-top:-4px}
 .chip .cnt{opacity:.6;margin-left:4px;font-size:12px}
 .rhead{grid-column:1/-1;font-size:20px;margin-top:10px;padding-top:18px;border-top:1px solid var(--line)}
@@ -784,7 +786,7 @@ table.t{width:100%;border-collapse:collapse;font-size:14.5px;min-width:640px}
     <h2 class="ssh" style="margin-top:8px">Picks from partner stores</h2>
     <div class="pchips" id="pRegions" aria-label="Regions"></div>
     <div class="pchips" id="pChips" aria-label="Stores"></div>
-    <div class="result-bar"><span class="count" id="pCount"></span><span class="notice">Sample partner products for design review</span></div>
+    <div class="result-bar"><span class="count" id="pCount"></span></div>
     <div class="grid" id="pGrid"></div>
   </div>
 </div>
@@ -1402,22 +1404,37 @@ const PARTNERS=[
    steps:['Open ui.awin.com/publisher-signup and follow the wizard.','Choose your main region and promotion type (website).','Pay the small refundable deposit (returned with your first payout).','Apply to brands in the Advertiser Directory (Zalando Lounge and Back Market are here too).','Copy deep links for approved brands and paste them here.']}
 ];
 PARTNERS.forEach(p=>{p.tag='';p.on=false;});
+// Real product pages. Photo, title and price are read live from each page (api/preview); products that are gone hide themselves.
 const PITEMS=[
-  {id:1,partner:'jumia',region:'africa',t:'Samsung Galaxy A15, 128 GB',price:185000,cur:'NGN',cat:'elec',url:'https://www.jumia.com.ng/'},
-  {id:2,partner:'konga',region:'africa',t:'Leather laptop bag, 15-inch',price:42000,cur:'NGN',cat:'fashion',url:'https://www.konga.com/'},
-  {id:3,partner:'bol',region:'europe',t:'Noise-cancelling headphones',price:179,cur:'EUR',cat:'elec',url:'https://www.bol.com/'},
-  {id:4,partner:'zalando',region:'europe',t:'Wool overcoat, navy',price:129,cur:'EUR',cat:'fashion',url:'https://www.zalando-lounge.de/'},
-  {id:5,partner:'backmarket',region:'europe',t:'iPhone 13, refurbished, 128 GB',price:339,cur:'GBP',cat:'elec',url:'https://www.backmarket.co.uk/'},
-  {id:6,partner:'amazon-eu',region:'europe',t:'Espresso grinder, burr',price:149,cur:'EUR',cat:'home',url:'https://www.amazon.de/'},
-  {id:7,partner:'allegro',region:'europe',t:'Vintage film camera, tested',price:690,cur:'PLN',cat:'collect',url:'https://allegro.pl/'},
-  {id:8,partner:'amazon-us',region:'north-america',t:'Mechanical keyboard, 75% layout',price:89,cur:'USD',cat:'elec',url:'https://www.amazon.com/'},
-  {id:9,partner:'ebay-us',region:'north-america',t:'Clay poker chips, 500 set',price:110,cur:'USD',cat:'poker',url:'https://www.ebay.com/'},
-  {id:10,partner:'amazon-me',region:'middle-east',t:'Smartwatch, 44 mm',price:799,cur:'AED',cat:'fashion',url:'https://www.amazon.ae/'},
-  {id:11,partner:'aliexpress',region:'global',t:'Ceramic poker chip set, 300 pieces',price:64,cur:'USD',cat:'poker',url:'https://www.aliexpress.com/'},
-  {id:12,partner:'temu',region:'global',t:'Desk organiser set, 6 pieces',price:19,cur:'USD',cat:'home',url:'https://www.temu.com/'}
-].map(i=>({...i,clicks:0,on:true,sample:true}));
+  {id:1,partner:'jumia',region:'africa',cat:'elec',t:'Samsung Galaxy A16, 4GB/128GB, black',url:'https://www.jumia.com.ng/samsung-galaxy-a16-6.7-hd-4gb-ram128gb-rom-android-14-black-401737684.html'},
+  {id:2,partner:'jumia',region:'africa',cat:'elec',t:'Samsung Galaxy A16, 4GB/128GB, gray',url:'https://www.jumia.com.ng/samsung-galaxy-a16-4gb-128gb-dual-sim-5000mah-gray-418827182.html'},
+  {id:3,partner:'bol',region:'europe',cat:'elec',t:'Sony WH-1000XM5 noise-cancelling headphones, black',url:'https://www.bol.com/nl/nl/p/sony-wh-1000xm5-draadloze-koptelefoon-met-noise-cancelling-zwart/9300000096972714/',img:'https://media.s-bol.com/gMLJEBpA8NpZ/w0kkgoX/545x840.jpg'},
+  {id:4,partner:'backmarket',region:'europe',cat:'elec',t:'iPhone 13, 128GB, blue, refurbished',url:'https://www.backmarket.co.uk/en-gb/p/iphone-13-128-gb-blue-unlocked/e4d4b68e-9dec-438d-be52-d348924bfe62'},
+  {id:5,partner:'ebay-eu',region:'europe',cat:'poker',t:'Poker chip set, 500 chips, aluminium case, 14g',url:'https://www.ebay.de/itm/316708663417'},
+  {id:6,partner:'ebay-us',region:'north-america',cat:'poker',t:'14g clay poker chip set, 500 pieces, aluminium case',url:'https://www.ebay.com/itm/305280400292'},
+  {id:7,partner:'aliexpress',region:'global',cat:'poker',t:'EPT ceramic poker chips, casino style',url:'https://www.aliexpress.com/item/4000766130446.html',img:'https://ae-pic-a1.aliexpress-media.com/kf/H9bee5928c09b42699887c91f2d1366aeF.jpg'},
+  {id:8,partner:'aliexpress',region:'global',cat:'poker',t:'Poker chips, 100 pieces, 11.5g, 10 colours',url:'https://www.aliexpress.com/item/4001322029040.html',img:'https://ae-pic-a1.aliexpress-media.com/kf/H76a095ebcc304b75a20ebf33d4e4fb24z.jpg'}
+].map(i=>({...i,clicks:0,on:true}));
+const LIVE={}; // url -> {ok,title,image,price,currency} | 'pending' | 'failed'
+async function enrich(items){
+  const todo=items.filter(i=>!LIVE[i.url]); if(!todo.length)return;
+  let cache={}; try{cache=JSON.parse(sessionStorage.getItem('hd-live')||'{}');}catch{}
+  await Promise.all(todo.map(async i=>{
+    if(cache[i.url]){LIVE[i.url]=cache[i.url];return;}
+    LIVE[i.url]='pending';
+    try{const ctl=new AbortController();setTimeout(()=>ctl.abort(),9000);
+      const r=await fetch('/api/preview?url='+encodeURIComponent(i.url),{signal:ctl.signal}); const j=await r.json();
+      LIVE[i.url]=j&&j.ok?j:(j&&j.moved?'gone':'failed');}catch{LIVE[i.url]='failed';}
+    cache[i.url]=LIVE[i.url];
+  }));
+  try{sessionStorage.setItem('hd-live',JSON.stringify(cache));}catch{}
+  renderPStrip(); if(!document.getElementById('view-partners').hidden)renderPartners(); if(!document.getElementById('view-console').hidden&&conTab==='partners')renderConsole();
+}
+const liveOf=i=>{const l=LIVE[i.url];return l&&typeof l==='object'?l:null;};
+const imgOf=i=>(liveOf(i)&&liveOf(i).image)||i.img||'';
+
 const pOf=id=>PARTNERS.find(p=>p.id===id);
-const pmoney=(n,c)=>{try{return new Intl.NumberFormat('en',{style:'currency',currency:c,maximumFractionDigits:['NGN','JPY'].includes(c)?0:2}).format(n);}catch{return c+' '+n;}};
+const pmoney=(n,c)=>{try{return new Intl.NumberFormat('en',{style:'currency',currency:c,currencyDisplay:'narrowSymbol',maximumFractionDigits:['NGN','JPY'].includes(c)?0:2}).format(n);}catch{return c+' '+n;}};
 /* ---- visitor location: saved choice > Vercel IP country > time zone ---- */
 const RSETS={
   africa:'DZ AO BJ BW BF BI CV CM CF TD KM CG CD CI DJ EG GQ ER SZ ET GA GM GH GN GW KE LS LR LY MG MW ML MR MU MA MZ NA NE NG RW ST SN SC SL SO ZA SS SD TZ TG TN UG ZM ZW',
@@ -1488,16 +1505,18 @@ function youHTML(){
 }
 let PR='', PF='';
 function pcardHTML(it){
-  const pt=pOf(it.partner);
+  const pt=pOf(it.partner), lv=liveOf(it), img=imgOf(it), title=(lv&&lv.title)||it.t;
+  const pr=lv&&lv.price&&!isNaN(parseFloat(lv.price))?pmoney(parseFloat(String(lv.price).replace(/,/g,'')),(lv.currency||'USD').toUpperCase()):'';
+  const store=pt.name.replace(/ (Europe|US & Canada|Middle East|Asia-Pacific|US|Australia|Lounge)$/,'');
+  const href=withAff(it.partner,it.url);
   return `<article class="card pcard">
-    <div class="thumb ${it.img?'has-media':''}">${it.img?`<img class="cover" src="${esc(it.img)}" alt="${esc(it.t)}" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentNode.classList.remove('has-media');this.remove()">`:''}<span class="who">Sold by ${esc(pt.name)}</span>${it.sample?'<span class="ptag">Sample</span>':''}<span class="tb">${esc(pt.name)}</span><span class="tm">${esc(it.t)}</span><span class="ts">${esc(catOf(it.cat)?.name||'')}</span></div>
-    <div class="meta"><span class="title">${esc(it.t)}</span><span class="price">${pmoney(it.price,it.cur)}</span></div>
-    <span class="rgn">${esc(regName(it.region))}, paid in ${it.cur}</span>
-    <span class="fine">Paid on ${esc(pt.name)}. Not covered by Houlio Duo escrow.</span>
-    <a class="btn btn-ghost btn-sm buy" href="${esc(it.url)}" target="_blank" rel="sponsored noopener noreferrer" data-pclick="${it.id}">Buy on ${esc(pt.name.replace(/ (Europe|US & Canada|Middle East|Asia-Pacific|US|Australia|Lounge)$/,''))}</a>
+    <a class="thumb has-media" href="${esc(href)}" target="_blank" rel="sponsored noopener noreferrer" data-pclick="${it.id}"><img class="cover" src="${esc(img)}" alt="${esc(title)}" loading="lazy" referrerpolicy="no-referrer" onerror="this.closest('.pcard').hidden=true"><span class="who">${esc(store)}</span></a>
+    <div class="meta"><span class="title">${esc(title.length>90?title.slice(0,88)+'…':title)}</span>${pr?`<span class="price">${pr}</span>`:''}</div>
+    <span class="rgn">${esc(regName(it.region))}${pr?'':`, price on ${esc(store)}`}</span>
+    <a class="btn btn-primary btn-sm buy" href="${esc(href)}" target="_blank" rel="sponsored noopener noreferrer" data-pclick="${it.id}">Buy on ${esc(store)}</a>
   </article>`;
 }
-const pVisible=()=>PITEMS.filter(i=>i.on&&(i.img||i.sample)).sort((a,b)=>(b.region===USER.region)-(a.region===USER.region)||(b.region==='global')-(a.region==='global'));
+const pVisible=()=>PITEMS.filter(i=>i.on&&LIVE[i.url]!=='gone'&&imgOf(i)).sort((a,b)=>(b.region===USER.region)-(a.region===USER.region)||(b.region==='global')-(a.region==='global'));
 function renderPartners(){
   const items=pVisible();
   if(prAuto&&PR===''&&USER.region&&items.some(i=>i.region===USER.region))PR=USER.region;
@@ -1519,6 +1538,7 @@ function renderPartners(){
   document.getElementById('pGrid').innerHTML=list.length?html:`<div class="no-results"><h3>No partner products here yet</h3><p>Try another region.</p></div>`;
 }
 function renderPStrip(){
+  enrich(PITEMS.filter(i=>i.on));
   const items=pVisible().slice(0,8), sec=document.getElementById('partner-picks');
   const sub=sec.querySelector('.sub'); if(sub)sub.textContent=USER.country?`Picks from marketplaces we work with, starting with stores for ${cName(USER.country)}. You buy on their site.`:'Picks from marketplaces we work with. You buy on their site.';
   sec.hidden=!items.length; document.getElementById('pStrip').innerHTML=items.map(pcardHTML).join('');
@@ -1539,9 +1559,9 @@ function addPItem(e){
   e.preventDefault();
   const pt=pOf(apP.value), t=apT.value.trim(), pr=parseFloat(apPr.value), url=apU.value.trim(), msg=document.getElementById('apMsg');
   const iu=(document.getElementById('apIU').value||'').trim(); let img=PIMG; if(!img&&/^https:\/\/\S+$/i.test(iu))img=iu;
-  const err=!t?'Enter the product name.':!(pr>0)?'Enter the price shown on the partner site.':!img?(iu?'The image link must start with https://.':'Add a product photo: upload one, or paste the image link from the store.'):!hostOk(url,pt)?`That isn’t a secure ${pt.name} link. Paste the affiliate link from your ${pt.name} dashboard.`:'';
+  const err=!t?'Enter the product name, or tap “Get details”.':!img?(iu?'The image link must start with https://.':'Add a product photo: upload one, or paste the image link from the store.'):!hostOk(url,pt)?`That isn’t a secure ${pt.name} product link. Paste the product page from ${pt.name}.`:'';
   if(err){msg.innerHTML=`<span class="err">${esc(err)}</span>`;return;}
-  PITEMS.unshift({id:Math.max(0,...PITEMS.map(i=>i.id))+1,partner:pt.id,region:apR.value,t,price:pr,cur:apC.value,cat:apCat.value,url,img,clicks:0,on:true});
+  PITEMS.unshift({id:Math.max(0,...PITEMS.map(i=>i.id))+1,partner:pt.id,region:apR.value,t,price:pr>0?pr:0,cur:apC.value,cat:apCat.value,url,img,clicks:0,on:true});
   PIMG=''; log('Added partner product',`${t} (${pt.name}, ${regName(apR.value)})`); toast('Partner product added'); renderPStrip(); renderConsole();
 }
 const CURS=['USD','EUR','GBP','NGN','PLN','SEK','DKK','CHF','KES','GHS','ZAR','EGP','AED','SAR','CAD','AUD','INR','JPY'];
@@ -1557,20 +1577,20 @@ PANELS_EXTRA={
       <div class="field"><label for="apP">Store</label><select id="apP">${REGIONS.map(([r,n])=>{const ps=PARTNERS.filter(p=>p.region===r);return ps.length?`<optgroup label="${n}">${ps.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('')}</optgroup>`:'';}).join('')}</select></div>
       <div class="field"><label for="apR">Region shown to buyers</label><select id="apR">${REGIONS.map(([r,n])=>`<option value="${r}">${n}</option>`).join('')}</select></div>
       <div class="field"><label for="apCat">Category</label><select id="apCat">${CATS.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('')}</select></div>
-      <div class="field full"><label for="apT">Product name</label><input id="apT" placeholder="As shown on the partner site"></div>
-      <div class="field"><label for="apPr">Price</label><input id="apPr" type="number" step="0.01" min="0" inputmode="decimal"></div>
+      <div class="field full"><label for="apU">Product page link</label><div style="display:flex;gap:8px"><input id="apU" type="url" placeholder="https://… paste the product page from the store" spellcheck="false" style="flex:1"><button type="button" class="mini pri" id="apFetch" style="height:46px">Get details</button></div></div>
+      <div class="field full"><label for="apT">Product name</label><input id="apT" placeholder="Filled from the store page"></div>
+      <div class="field"><label for="apPr">Price (optional)</label><input id="apPr" type="number" step="0.01" min="0" inputmode="decimal"></div>
       <div class="field"><label for="apC">Currency</label><select id="apC">${CURS.map(c=>`<option>${c}</option>`).join('')}</select></div>
       <div class="field"><label for="apI">Product photo</label><input id="apI" type="file" accept="image/*" style="padding-top:10px"></div>
       <div class="field full"><label for="apIU">Or image link from the store</label><input id="apIU" type="url" placeholder="https://… product image from the partner’s feed or link tool" spellcheck="false"></div>
-      <div class="field full"><label for="apU">Affiliate link</label><input id="apU" type="url" placeholder="https://… from your partner dashboard" spellcheck="false"></div>
       <div class="full" style="display:flex;gap:14px;align-items:center;flex-wrap:wrap"><button class="btn btn-primary btn-sm">Add product</button><span id="apMsg" class="formnote"></span></div>
     </form>
     <h3>Partner products</h3>
     <div class="tbl"><table class="t"><thead><tr><th>Photo</th><th>Product</th><th>Store</th><th>Region</th><th>Price</th><th>Clicks</th><th>Status</th><th></th></tr></thead><tbody>
-    ${PITEMS.length?PITEMS.map(i=>`<tr><td>${i.img?`<img src="${esc(i.img)}" alt="" style="width:44px;height:44px;object-fit:cover;border-radius:6px;display:block" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'dim',textContent:'Broken'}))">`:'<span class="st warn">Needs photo</span>'}</td><td><b style="white-space:normal">${esc(i.t)}</b><div class="dim">${i.sample?'Sample, links to the store homepage':esc(new URL(i.url).hostname)}</div></td><td>${esc(pOf(i.partner).name)}</td><td>${esc(regName(i.region))}</td><td>${pmoney(i.price,i.cur)}</td><td>${i.clicks}</td><td>${stb(i.on?'Live':'Hidden')}</td>
+    ${PITEMS.length?PITEMS.map(i=>`<tr><td>${imgOf(i)?`<img src="${esc(imgOf(i))}" alt="" style="width:44px;height:44px;object-fit:cover;border-radius:6px;display:block" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'dim',textContent:'Broken'}))">`:'<span class="st warn">Needs photo</span>'}</td><td><b style="white-space:normal">${esc(i.t)}</b><div class="dim">${esc(new URL(i.url).hostname)}${LIVE[i.url]==='gone'?' <span class="st bad">Removed by store</span>':''}</div></td><td>${esc(pOf(i.partner).name)}</td><td>${esc(regName(i.region))}</td><td>${liveOf(i)&&liveOf(i).price?esc(liveOf(i).price+' '+(liveOf(i).currency||'')):(i.price?pmoney(i.price,i.cur):'<span class="dim">From store</span>')}</td><td>${i.clicks}</td><td>${stb(i.on?'Live':'Hidden')}</td>
       <td><div class="act"><button class="mini" data-do="pi-toggle" data-id="${i.id}">${i.on?'Hide':'Show'}</button><button class="mini dan" data-do="pi-del" data-id="${i.id}">Remove</button></div></td></tr>`).join(''):`<tr><td colspan="8" class="empty-row">No partner products yet.</td></tr>`}
     </tbody></table></div>
-    <p class="formnote" style="margin-top:14px">Every product needs a photo before buyers see it. Sample rows have none and stay as text cards until you replace them. Commission is earned and paid by each partner in its own currency. Check sales and payouts in their dashboards; clicks here count only taps on this site.</p>`;
+    <p class="formnote" style="margin-top:14px">Every product needs a photo before buyers see it. Products whose page has been removed hide automatically. Commission is earned and paid by each partner in its own currency. Check sales and payouts in their dashboards; clicks here count only taps on this site.</p>`;
   }
 };
 const PDEF={jumia:'NGN',konga:'NGN','amazon-eu':'EUR','ebay-eu':'GBP',zalando:'EUR',bol:'EUR',backmarket:'EUR',allegro:'PLN','amazon-us':'USD','ebay-us':'USD','amazon-me':'AED','amazon-apac':'AUD','ebay-au':'AUD',aliexpress:'USD',temu:'USD',awin:'EUR'};
@@ -1618,6 +1638,14 @@ function renderConsole(){
   const P=document.getElementById('conPanel'); P.innerHTML=PANELS[conTab](); P.onclick=onConsoleClick;
   P.querySelectorAll('[data-feeform]').forEach(f=>f.onsubmit=saveFees);
   const ac=P.querySelector('#addCat'); if(ac)ac.onsubmit=addCat;
+  const apf=P.querySelector('#apFetch'); if(apf)apf.onclick=async()=>{const u=apU.value.trim(),msg=document.getElementById('apMsg');
+    const host=(()=>{try{return new URL(u).hostname.replace(/^www\./,'');}catch{return '';}})(); if(!host){msg.innerHTML='<span class="err">Paste a full https:// product link first.</span>';return;}
+    const match=PARTNERS.find(p=>p.domains.some(d=>host===d||host.endsWith('.'+d))); if(match){apP.value=match.id;apR.value=match.region;apC.value=PDEF[match.id]||'USD';}
+    msg.textContent='Reading the store page…';
+    try{const r=await fetch('/api/preview?url='+encodeURIComponent(u));const j=await r.json();
+      if(j.title)apT.value=j.title; if(j.image)document.getElementById('apIU').value=j.image; if(j.price)apPr.value=parseFloat(String(j.price).replace(/,/g,''))||''; if(j.currency&&CURS.includes(j.currency.toUpperCase()))apC.value=j.currency.toUpperCase();
+      msg.innerHTML=j.ok?'<span style="color:var(--ok)">Details filled from the store. Check them, then add.</span>':(j.moved?'<span class="err">That product page redirects elsewhere; it may be sold out.</span>':'<span class="err">The store didn’t share details. Fill them in and add a photo.</span>');}
+    catch{msg.innerHTML='<span class="err">Couldn’t reach the store from here. Fill in the details and add a photo.</span>';}};
   const ap=P.querySelector('#addPItem'); if(ap){ap.onsubmit=addPItem;const sync=()=>{const pt=pOf(apP.value);apR.value=pt.region;apC.value=PDEF[pt.id]||'USD';};apP.onchange=sync;sync();}
   const api=P.querySelector('#apI'); if(api)api.onchange=async()=>{const f=api.files[0];if(!f)return;try{PIMG=(await compressImage(f)).url;document.getElementById('apMsg').innerHTML='<span style="color:var(--ok)">Photo ready</span>';}catch{document.getElementById('apMsg').innerHTML='<span class="err">Couldn’t open that photo. Use JPG or PNG.</span>';}};
   P.querySelectorAll('[data-ptag]').forEach(i=>i.onchange=()=>{const pt=pOf(i.dataset.ptag);pt.tag=i.value.trim();log('Saved affiliate ID',`${pt.name}: ${pt.tag||'cleared'}`);toast('Affiliate ID saved');renderConsole();});
